@@ -3,10 +3,9 @@ message: "If you use this software, please cite the associated paper and this re
 title: "Target-disjoint drug-target affinity prediction with Reptile-Transformer"
 type: software
 authors:
-  - family-names: "REPLACE_WITH_FAMILY_NAME"
-    given-names: "REPLACE_WITH_GIVEN_NAME"
-version: 1.0.0
-date-released: 2026-08-24
+  - family-names: "Li"
+    given-names: "Haiting"
+version: 0.1.0
+date-released: 2026-08-25
 license: MIT
-repository-code: "https://github.com/REPLACE_WITH_USER/REPLACE_WITH_REPOSITORY"
-
+repository-code: "https://github.com/kemoribe/reptile-transformer"
