@@ -1,0 +1,15 @@
+# Install a CUDA-compatible PyTorch build first: https://pytorch.org/get-started/locally/
+numpy==1.26.4
+pandas==2.3.3
+scipy==1.13.1
+scikit-learn==1.6.1
+tqdm==4.68.4
+requests>=2.32,<3
+rdkit==2022.9.5
+torch==2.8.0
+torch-geometric==2.6.1
+transformers>=4.44,<5
+safetensors>=0.4
+networkx>=3.2
+matplotlib==3.9.4
+seaborn==0.13.2

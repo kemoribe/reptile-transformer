@@ -1,0 +1,181 @@
+{
+  "datasets": {
+    "chembl": {
+      "path": "data/processed/chembl",
+      "splits": {
+        "train_set": {
+          "rows": 389593,
+          "targets": 123,
+          "unique_sequences": 123,
+          "missing_sequence_targets": []
+        },
+        "val_set": {
+          "rows": 69164,
+          "targets": 41,
+          "unique_sequences": 41,
+          "missing_sequence_targets": []
+        },
+        "test_set": {
+          "rows": 31132,
+          "targets": 26,
+          "unique_sequences": 26,
+          "missing_sequence_targets": []
+        }
+      },
+      "overlap": {
+        "train_set_vs_val_set": {
+          "target_ids": 0,
+          "protein_sequences": 0
+        },
+        "train_set_vs_test_set": {
+          "target_ids": 0,
+          "protein_sequences": 0
+        },
+        "val_set_vs_test_set": {
+          "target_ids": 0,
+          "protein_sequences": 0
+        }
+      },
+      "combined_activities": {
+        "rows": 489889,
+        "bytes": 66997909,
+        "sha256": "839984a0690ccd9d04026a507670a1ccff12f808aa8ab30ab9a0274e40c18a6b",
+        "matches_split_rows": true
+      },
+      "target_disjoint": true
+    },
+    "davis": {
+      "path": "data/processed/davis",
+      "splits": {
+        "train_set": {
+          "rows": 19668,
+          "targets": 298,
+          "unique_sequences": 298,
+          "missing_sequence_targets": []
+        },
+        "val_set": {
+          "rows": 4224,
+          "targets": 64,
+          "unique_sequences": 64,
+          "missing_sequence_targets": []
+        },
+        "test_set": {
+          "rows": 4290,
+          "targets": 65,
+          "unique_sequences": 65,
+          "missing_sequence_targets": []
+        }
+      },
+      "overlap": {
+        "train_set_vs_val_set": {
+          "target_ids": 0,
+          "protein_sequences": 0
+        },
+        "train_set_vs_test_set": {
+          "target_ids": 0,
+          "protein_sequences": 0
+        },
+        "val_set_vs_test_set": {
+          "target_ids": 0,
+          "protein_sequences": 0
+        }
+      },
+      "combined_activities": {
+        "rows": 28182,
+        "bytes": 2369015,
+        "sha256": "746ebecec34c135de5c42cb9bbd4574136c6e1982502dad15e8680a0cb474cd8",
+        "matches_split_rows": true
+      },
+      "target_disjoint": true
+    },
+    "kiba": {
+      "path": "data/processed/kiba",
+      "splits": {
+        "train_set": {
+          "rows": 84641,
+          "targets": 160,
+          "unique_sequences": 160,
+          "missing_sequence_targets": []
+        },
+        "val_set": {
+          "rows": 15135,
+          "targets": 34,
+          "unique_sequences": 34,
+          "missing_sequence_targets": []
+        },
+        "test_set": {
+          "rows": 18478,
+          "targets": 35,
+          "unique_sequences": 35,
+          "missing_sequence_targets": []
+        }
+      },
+      "overlap": {
+        "train_set_vs_val_set": {
+          "target_ids": 0,
+          "protein_sequences": 0
+        },
+        "train_set_vs_test_set": {
+          "target_ids": 0,
+          "protein_sequences": 0
+        },
+        "val_set_vs_test_set": {
+          "target_ids": 0,
+          "protein_sequences": 0
+        }
+      },
+      "combined_activities": {
+        "rows": 118254,
+        "bytes": 11771979,
+        "sha256": "499293ca1fd2bb43cdefb0f95e8877998dc8f09412d904f79a72066a5c8ec9bf",
+        "matches_split_rows": true
+      },
+      "target_disjoint": true
+    },
+    "bindingdb": {
+      "path": "data/processed/bindingdb",
+      "splits": {
+        "train_set": {
+          "rows": 40449,
+          "targets": 520,
+          "unique_sequences": 519,
+          "missing_sequence_targets": []
+        },
+        "val_set": {
+          "rows": 8332,
+          "targets": 111,
+          "unique_sequences": 111,
+          "missing_sequence_targets": []
+        },
+        "test_set": {
+          "rows": 12043,
+          "targets": 112,
+          "unique_sequences": 112,
+          "missing_sequence_targets": []
+        }
+      },
+      "overlap": {
+        "train_set_vs_val_set": {
+          "target_ids": 0,
+          "protein_sequences": 0
+        },
+        "train_set_vs_test_set": {
+          "target_ids": 0,
+          "protein_sequences": 0
+        },
+        "val_set_vs_test_set": {
+          "target_ids": 0,
+          "protein_sequences": 0
+        }
+      },
+      "combined_activities": {
+        "rows": 60824,
+        "bytes": 52430576,
+        "sha256": "8f7646881be5b9cc4cb8d697d5810af938e529f5eb8197d1ee549e089ebb5d73",
+        "matches_split_rows": true
+      },
+      "target_disjoint": true
+    }
+  },
+  "all_target_disjoint": true
+}
