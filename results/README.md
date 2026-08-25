@@ -1,15 +1,19 @@
 # Results
 
-此目录用于存放修正版代码重新运行后产生的轻量结果，不应提交大型特征缓存或模型检查点。
+项目维护者已确认 `tables/` 中的三张 Excel 为最终实验结果表。
+`metrics_all_tables.csv` 是三张表中有效模型行的统一机器可读导出。
 
-建议至少发布：
+大型结果和权重不提交到 Git 历史，而作为 GitHub Release 附件发布：
 
-- 每个模型和数据集的 `final_results.json`；
-- 汇总指标表 `metrics.csv`；
-- 生成论文图所需的压缩预测值；
-- 训练配置、随机种子和软件/硬件版本；
-- 与论文表格之间的文件映射说明。
+- `experiment-results-v1.0.0.zip`：结果表、指标、预测值、逐靶点结果和训练历史；
+- `model-weights-mlp-v1.0.0.zip`；
+- `model-weights-transformer-v1.0.0.zip`；
+- `model-weights-reptile-transformer-v1.0.0.zip`；
+- `model-weights-graphdta-v1.0.0.zip`。
 
-可从 `experiment_manifest_template.csv` 开始记录 7 个模型在 4 个数据集上的运行配置。完成一项后填写超参数、结果文件路径，并将 `status` 从 `pending` 改为 `complete`。
+每个附件内含 `MANIFEST.csv` 和 SHA256。打包方式见
+`scripts/package_experiment_artifacts.ps1`，上传步骤见
+`docs/EXPERIMENT_ARTIFACTS_UPLOAD.md`。
 
-旧实验结果使用了与当前发布代码不一致的 ESM-2 加载方式，因此没有复制到这里。重新运行并核对后才能作为正式结果发布。
+大型 `precomputed_features.npz`、逐轮 checkpoint、虚拟环境及第三方 ESM-2
+权重不属于发布结果。

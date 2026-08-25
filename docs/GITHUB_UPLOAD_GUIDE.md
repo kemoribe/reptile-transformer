@@ -26,7 +26,13 @@ D:\lht\release_packages\
 |-- data-processed-davis-v1.0.0.zip
 |-- data-processed-kiba-v1.0.0.zip
 |-- data-processed-bindingdb-v1.0.0.zip
+|-- experiment-results-v1.0.0.zip
+|-- model-weights-mlp-v1.0.0.zip
+|-- model-weights-transformer-v1.0.0.zip
+|-- model-weights-reptile-transformer-v1.0.0.zip
+|-- model-weights-graphdta-v1.0.0.zip
 |-- SHA256SUMS.txt
+|-- SHA256SUMS-EXPERIMENT-ARTIFACTS.txt
 |-- verify_transfer.ps1
 `-- README-FIRST.txt
 ```
@@ -36,7 +42,8 @@ D:\lht\release_packages\
 
 ## 2. 在目标电脑校验和解压
 
-先运行自动校验。它会检查 5 个 ZIP 的 SHA256、代码包中是否混入数据/缓存/权重，以及每个数据包的顶层目录：
+先运行自动校验。它会检查代码、数据、结果和权重 ZIP 的 SHA256，确认代码包
+中没有混入大型数据/缓存/权重，并检查各压缩包的目录结构：
 
 ```powershell
 cd D:\transfer\release_packages
@@ -48,6 +55,7 @@ powershell -ExecutionPolicy Bypass -File .\verify_transfer.ps1
 ```powershell
 Get-FileHash .\*.zip -Algorithm SHA256
 Get-Content .\SHA256SUMS.txt
+Get-Content .\SHA256SUMS-EXPERIMENT-ARTIFACTS.txt
 ```
 
 然后创建项目目录并解压：
@@ -178,21 +186,24 @@ git tag -a v1.0.0 -m "Version 1.0.0"
 git push origin v1.0.0
 ```
 
-建议只在修正版实验、结果文件和发布清单完成后创建正式 `v1.0.0`。未完成时可先使用 `v0.1.0` 或将仓库设为 Private。
+项目维护者确认最终结果表和附件后，可创建正式 `v1.0.0`。
 
-## 8. 上传数据到 GitHub Release
+## 8. 上传数据、结果和权重到 GitHub Release
 
 1. 打开仓库网页。
 2. 进入右侧 **Releases**，点击 **Draft a new release**。
 3. 选择已经推送的 `v1.0.0` tag。
-4. 标题填写 `v1.0.0 - code and processed target-disjoint datasets`。
-5. 将 `docs/GITHUB_RELEASE_TEMPLATE.md` 的内容粘贴到说明框，替换方括号占位项，并选择正确的复现状态。
-6. 上传四个 `data-processed-*.zip` 和 `SHA256SUMS.txt`。
+4. 标题填写 `v1.0.0 - code, data, results, and model weights`。
+5. 将 `docs/GITHUB_RELEASE_TEMPLATE.md` 的内容粘贴到说明框并替换方括号占位项。
+6. 上传四个 `data-processed-*.zip`、`experiment-results-v1.0.0.zip`、
+   四个 `model-weights-*.zip`、`SHA256SUMS.txt` 和
+   `SHA256SUMS-EXPERIMENT-ARTIFACTS.txt`。
 7. 等待所有文件上传完成后再点击 **Publish release**。
 
 不要把数据压缩包强制 `git add` 到普通提交中。GitHub 单文件限制和 Git 历史膨胀会让仓库难以维护。
 
-本次四个数据压缩包均小于 20 MiB，因此无需 Git LFS。若以后发布大型模型权重，优先作为 Release/Zenodo 附件；只有确实需要随 Git 版本检出的二进制文件才使用 Git LFS。
+四个数据包和模型权重均通过 Release 附件发布，因此无需 Git LFS。不要把大型
+模型权重提交到普通 Git 历史。
 
 ## 9. 可选：用 Zenodo 生成 DOI
 

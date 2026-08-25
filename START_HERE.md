@@ -9,7 +9,10 @@
 |---|---|---|
 | `dta-reptile-code-v1.0.0.zip` | GitHub 仓库代码区 | 是 |
 | 四个 `data-processed-*.zip` | GitHub Release 附件 | 否 |
+| `experiment-results-v1.0.0.zip` | GitHub Release 附件 | 否 |
+| 四个 `model-weights-*.zip` | GitHub Release 附件 | 否 |
 | `SHA256SUMS.txt` | GitHub Release 附件 | 否 |
+| `SHA256SUMS-EXPERIMENT-ARTIFACTS.txt` | GitHub Release 附件 | 否 |
 | `esm2_model/` | 不上传 | 不适用 |
 
 ESM-2 权重约数百 MB，而且可以从 Hugging Face 重新获得，所以不要上传。
@@ -44,8 +47,8 @@ Expand-Archive .\dta-reptile-code-v1.0.0.zip D:\github-upload\target-disjoint-dt
 2. `LICENSE`：把版权人改为本人姓名或团队名。
 3. `docs/FINAL_RELEASE_INFO_TEMPLATE.md`：能确认的项目先填写。
 
-最终实验尚未用修正版 ESM-2 重跑时，建议先建 **Private** 仓库，或者使用
-`v0.1.0`，不要标记为论文最终 `v1.0.0`。
+本发布中的最终结果表由项目维护者确认，结果和权重附件按
+`docs/EXPERIMENT_ARTIFACTS_UPLOAD.md` 上传。
 
 ## 第四步：在 GitHub 网页创建仓库
 
@@ -68,23 +71,21 @@ Expand-Archive .\dta-reptile-code-v1.0.0.zip D:\github-upload\target-disjoint-dt
 代码文件数量低于网页单次上传限制，且没有大文件。若浏览器没有保留子目录，
 不要逐个重建目录，改用 `docs/GITHUB_UPLOAD_GUIDE.md` 中的 Git 命令方案。
 
-## 第六步：创建 Release 并上传数据
-
-只有最终实验和发布清单都完成后才使用 `v1.0.0`；当前可先用 `v0.1.0`。
+## 第六步：创建 Release 并上传数据、结果和权重
 
 1. 打开仓库首页右侧 `Releases`，点击 `Create a new release`。
 2. 点击 `Choose a tag`，输入版本号并选择 `Create new tag`。
-3. Release title 填 `Code and processed target-disjoint datasets`。
+3. Release title 填 `v1.0.0 - Code, data, results, and model weights`。
 4. 说明内容参考 `docs/GITHUB_RELEASE_TEMPLATE.md`。
-5. 上传四个原样保留的 `data-processed-*.zip` 和 `SHA256SUMS.txt`。
-6. 等待五个附件全部上传完成，再点击 `Publish release`。
+5. 上传四个数据 ZIP、一个结果 ZIP、四个权重 ZIP 和两个 SHA256 文件。
+6. 等待 11 个附件全部上传完成，再点击 `Publish release`。
 
 ## 第七步：网页检查
 
 - 仓库首页能正常显示 README。
 - `graphdta/models/` 下能看到 GCN、GAT、GIN、GAT-GCN。
 - 仓库代码区没有数据 ZIP、ESM-2 权重、`.venv`、缓存和检查点。
-- Release 页面能看到四个数据 ZIP 和 `SHA256SUMS.txt`。
+- Release 页面能看到四个数据 ZIP、结果 ZIP、四个权重 ZIP 和两个 SHA256 文件。
 - `CITATION.cff` 和 `LICENSE` 不再含占位内容。
 
 更完整的命令行方案和故障处理见

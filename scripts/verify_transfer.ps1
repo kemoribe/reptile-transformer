@@ -127,6 +127,62 @@ foreach ($dataset in @("chembl", "davis", "kiba", "bindingdb")) {
     }
 }
 
+$artifactChecksumPath = Join-Path $root "SHA256SUMS-EXPERIMENT-ARTIFACTS.txt"
+if (Test-Path $artifactChecksumPath -PathType Leaf) {
+    $artifactArchives = @(
+        "experiment-results-$Version.zip",
+        "model-weights-mlp-$Version.zip",
+        "model-weights-transformer-$Version.zip",
+        "model-weights-reptile-transformer-$Version.zip",
+        "model-weights-graphdta-$Version.zip"
+    )
+    $artifactHashes = @{}
+    foreach ($line in Get-Content $artifactChecksumPath) {
+        if ($line -match "^([0-9a-fA-F]{64})\s+(.+)$") {
+            $artifactHashes[$Matches[2]] = $Matches[1].ToLowerInvariant()
+        }
+    }
+
+    Write-Host "Checking experiment artifacts:"
+    foreach ($name in $artifactArchives) {
+        $path = Join-Path $root $name
+        if (-not (Test-Path $path -PathType Leaf)) {
+            Write-Host "  MISSING  $name" -ForegroundColor Red
+            $failed = $true
+            continue
+        }
+        if (-not $artifactHashes.ContainsKey($name)) {
+            Write-Host "  NO HASH  $name" -ForegroundColor Red
+            $failed = $true
+            continue
+        }
+
+        $actual = (Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant()
+        if ($actual -ne $artifactHashes[$name]) {
+            Write-Host "  FAILED   $name" -ForegroundColor Red
+            $failed = $true
+            continue
+        }
+
+        $entries = @(& $tar.Source -tf $path)
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "  FAILED   cannot read $name" -ForegroundColor Red
+            $failed = $true
+            continue
+        }
+        $missingManifest = "./MANIFEST.csv" -notin $entries
+        $forbiddenArtifact = @($entries | Where-Object {
+            $_ -match 'precomputed_features\.npz$|checkpoint_epoch_|(^|/)checkpoint\.(pt|pth|ckpt)$'
+        })
+        if ($missingManifest -or $forbiddenArtifact.Count -gt 0) {
+            Write-Host "  FAILED   $name archive layout" -ForegroundColor Red
+            $failed = $true
+        } else {
+            Write-Host "  OK       $name"
+        }
+    }
+}
+
 if ($failed) {
     throw "Transfer package verification failed."
 }

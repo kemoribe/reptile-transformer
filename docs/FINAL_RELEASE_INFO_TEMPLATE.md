@@ -51,7 +51,7 @@
 - GPU 型号和显存；
 - Python、PyTorch、CUDA 版本；
 - 指标文件和预测文件路径；
-- 是否使用修正版 Hugging Face ESM-2 加载器重新运行；
+- 最终结果表、指标文件和权重文件之间的对应关系；
 - 论文表格/图片与结果文件的对应关系。
 
 完成后：
@@ -59,5 +59,6 @@
 1. 修改 `CITATION.cff`、`LICENSE` 和 README；
 2. 将确认后的轻量结果放入 `results/`；
 3. 更新 `PUBLISH_CHECKLIST.md`；
-4. 重新运行 `scripts/package_release.ps1`；
+4. 运行 `scripts/package_release.ps1` 和
+   `scripts/package_experiment_artifacts.ps1`；
 5. 重新校验 SHA256，再创建正式 tag 和 Release。

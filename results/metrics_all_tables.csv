@@ -1,0 +1,73 @@
+﻿source_file,source_sheet,dataset,model,R2,RMSE,MAE,Pearson,Spearman,EF@1%,EF@5%,EF@10%,ECE,AUPR
+feature-combination-results.xlsx,ChEMBL数据集,ChEMBL,Reptile+Transformer(full),0.2196,1.0142,0.7864,0.5044,0.4833,1.94,1.91,1.73,0.0248,0.3321
+feature-combination-results.xlsx,ChEMBL数据集,ChEMBL,Reptile+Transformer（Morgan + 理化描述符 + ESM2）,0.202,1.0256,0.795,0.4963,0.4722,1.98,1.91,1.67,0.0255,0.3347
+feature-combination-results.xlsx,ChEMBL数据集,ChEMBL,Reptile+Transformer（Morgan  + ESM2）,0.236,1.0035,0.7831,0.4967,0.472,2.08,1.95,1.85,0.0155,0.3347
+feature-combination-results.xlsx,ChEMBL数据集,ChEMBL,Reptile+Transformer（Morgan +MACCS + ESM2）,0.2346,1.0044,0.7915,0.4937,0.4742,1.9,1.73,1.72,0.0125,0.3247
+feature-combination-results.xlsx,Davis数据集,Davis,Reptile+Transformer(full),0.2295,1.0078,0.7922,0.4911,0.4696,1.77,1.85,1.68,0.0136,0.3218
+feature-combination-results.xlsx,Davis数据集,Davis,Reptile+Transformer（Morgan + 理化描述符 + ESM2）,0.2237,1.0116,0.7958,0.4839,0.4612,1.75,1.62,1.71,0.0157,0.3224
+feature-combination-results.xlsx,Davis数据集,Davis,Reptile+Transformer（Morgan +MACCS + ESM2）,0.2257,0.0522,0.0321,0.487,0.4351,0.0,4.95,4.89,0.0206,0.8934
+feature-combination-results.xlsx,Davis数据集,Davis,Reptile+Transformer（Morgan  + ESM2）,0.227,0.0521,0.0322,0.4847,0.43,0.0,4.45,4.41,0.0203,0.8781
+feature-combination-results.xlsx,BingdingBD数据集,BindingDB,Reptile+Transformer(full),0.2108,1.0199,0.7963,0.493,0.4734,2.01,1.88,1.72,0.0217,0.3293
+feature-combination-results.xlsx,BingdingBD数据集,BindingDB,Reptile+Transformer（Morgan + 理化描述符 + ESM2）,0.2335,1.0052,0.7917,0.4918,0.4717,1.85,1.99,1.78,0.0126,0.3355
+feature-combination-results.xlsx,BingdingBD数据集,BindingDB,Reptile+Transformer（Morgan +MACCS + ESM2）,-0.0946,1.0855,0.8514,0.6281,0.63,5.0,5.2,4.04,0.126,0.6888
+feature-combination-results.xlsx,BingdingBD数据集,BindingDB,Reptile+Transformer（Morgan  + ESM2）,-0.0679,1.0722,0.8365,0.6399,0.64,5.0,5.2,4.5,0.1192,0.6909
+feature-combination-results.xlsx,KIBA数据集,KIBA,Reptile+Transformer(full),0.2128,1.0186,0.7949,0.4947,0.4801,1.98,1.96,1.75,0.0226,0.3316
+feature-combination-results.xlsx,KIBA数据集,KIBA,Reptile+Transformer（Morgan + 理化描述符 + ESM2）,0.3222,0.6963,0.4665,0.5738,0.506,4.72,4.17,3.58,0.0045,0.6635
+feature-combination-results.xlsx,KIBA数据集,KIBA,Reptile+Transformer（Morgan +MACCS + ESM2）,0.3247,0.695,0.4632,0.5779,0.5076,4.68,4.21,3.58,0.0052,0.6645
+feature-combination-results.xlsx,KIBA数据集,KIBA,Reptile+Transformer（Morgan  + ESM2）,0.3214,0.6967,0.4636,0.5759,0.5041,4.7,4.18,3.56,0.0055,0.6634
+internal-external-ablation-results.xlsx,ChEMBL数据集,ChEMBL,MLP（Morgan + 理化描述符 + ESM2）,0.1806,1.0645,0.7541,0.5764,0.5432,4.63,4.07,3.74,0.0481,0.558
+internal-external-ablation-results.xlsx,ChEMBL数据集,ChEMBL,Transformer(仅mse）,0.1438,1.0881,0.7963,0.5664,0.5395,4.3411,3.8756,3.4278,0.427,0.5264
+internal-external-ablation-results.xlsx,ChEMBL数据集,ChEMBL,Transformer（Morgan + 理化描述符 + ESM2）,0.1679,1.0727,0.7853,0.5697,0.5395,4.44,3.8,3.48,0.4212,0.5303
+internal-external-ablation-results.xlsx,ChEMBL数据集,ChEMBL,Reptile+Transformer（Morgan + 理化描述符 + ESM2）,0.202,1.0256,0.795,0.4963,0.4722,1.98,1.91,1.67,0.0255,0.3347
+internal-external-ablation-results.xlsx,ChEMBL数据集,ChEMBL,GraphDTA GAT_GCN,0.0579,1.1373,0.9173,0.3186,0.3027,2.11,1.65,1.51,0.2018,0.2833
+internal-external-ablation-results.xlsx,ChEMBL数据集,ChEMBL,GraphDTA GCNNet,0.0447,1.1452,0.9204,0.3459,0.3316,2.41,1.97,1.79,0.2748,0.3091
+internal-external-ablation-results.xlsx,ChEMBL数据集,ChEMBL,GraphDTA GATNet,-0.1528,1.2581,1.008,0.1707,0.1475,1.59,1.42,1.22,0.4662,0.2318
+internal-external-ablation-results.xlsx,ChEMBL数据集,ChEMBL,GraphDTA GINConnvNet,-0.0913,1.224,0.9851,0.3384,0.3185,2.84,2.25,2.1,0.5119,0.3403
+internal-external-ablation-results.xlsx,Davis数据集,Davis,MLP（Morgan + 理化描述符 + ESM2）,0.1713,1.0705,0.8109,0.5161,0.4863,4.2,3.51,3.18,0.0425,0.4826
+internal-external-ablation-results.xlsx,Davis数据集,Davis,Transformer(仅mse）,0.1204,1.1029,0.7918,0.5639,0.5329,4.6305,4.0459,3.6318,0.4507,0.5511
+internal-external-ablation-results.xlsx,Davis数据集,Davis,Transformer（Morgan + 理化描述符 + ESM2）,0.2165,0.0525,0.0348,0.5303,0.4618,4.17,4.37,4.34,0.0057,0.8563
+internal-external-ablation-results.xlsx,Davis数据集,Davis,Reptile+Transformer（Morgan + 理化描述符 + ESM2）,0.2237,1.0116,0.7958,0.4839,0.4612,1.75,1.62,1.71,0.0157,0.3224
+internal-external-ablation-results.xlsx,Davis数据集,Davis,GraphDTA GAT_GCN,0.3998,0.6615,0.4376,0.4206,0.6378,0.4276,0.735,4.93,0.1155,0.6081
+internal-external-ablation-results.xlsx,Davis数据集,Davis,GraphDTA GCNNet,0.366,0.6799,0.4622,0.4402,0.614,0.4315,0.7375,4.93,0.1077,0.5843
+internal-external-ablation-results.xlsx,Davis数据集,Davis,GraphDTA GATNet,0.3667,0.6795,0.4617,0.4124,0.6218,0.469,0.7574,4.93,0.1205,0.601
+internal-external-ablation-results.xlsx,Davis数据集,Davis,GraphDTA GINConnvNet,0.2146,0.7567,0.4833,0.5742,0.4358,4.34,3.8,3.3,0.2882,0.5561
+internal-external-ablation-results.xlsx,BingdingBD数据集,BindingDB,MLP（Morgan + 理化描述符 + ESM2）,0.222,1.0372,0.7985,0.5128,0.4816,3.89,3.37,3.11,0.0255,0.4635
+internal-external-ablation-results.xlsx,BingdingBD数据集,BindingDB,Transformer(仅mse）,0.1465,1.0864,0.8134,0.5361,0.5083,4.309,3.7117,3.2832,0.4018,0.5019
+internal-external-ablation-results.xlsx,BingdingBD数据集,BindingDB,Transformer（Morgan + 理化描述符 + ESM2）,0.1838,1.0624,0.7688,0.565,0.5297,4.68,4.13,3.7,0.3985,0.5603
+internal-external-ablation-results.xlsx,BingdingBD数据集,BindingDB,Reptile+Transformer（Morgan + 理化描述符 + ESM2）,0.2335,1.0052,0.7917,0.4918,0.4717,1.85,1.99,1.78,0.0126,0.3355
+internal-external-ablation-results.xlsx,BingdingBD数据集,BindingDB,GraphDTA GAT_GCN,0.0995,1.2318,0.9586,0.3653,0.3572,3.02,2.68,2.44,0.1826,0.3955
+internal-external-ablation-results.xlsx,BingdingBD数据集,BindingDB,GraphDTA GCNNet,0.0519,1.2639,0.9817,0.2942,0.2652,3.37,2.84,2.17,0.2004,0.3612
+internal-external-ablation-results.xlsx,BingdingBD数据集,BindingDB,GraphDTA GATNet,0.0891,1.2388,0.9158,0.3497,0.3555,2.46,2.71,1.91,0.2523,0.3725
+internal-external-ablation-results.xlsx,BingdingBD数据集,BindingDB,GraphDTA GINConnvNet,0.0677,1.2533,0.99,0.3325,0.3471,3.45,2.5,2.15,0.1839,0.3584
+internal-external-ablation-results.xlsx,KIBA数据集,KIBA,MLP（Morgan + 理化描述符 + ESM2）,0.2565,1.014,0.7781,0.5329,0.5038,3.75,3.57,3.11,0.0227,0.4821
+internal-external-ablation-results.xlsx,KIBA数据集,KIBA,Transformer(仅mse）,0.1228,1.1014,0.7877,0.5693,0.5355,4.9039,4.1327,3.582,0.4511,0.5601
+internal-external-ablation-results.xlsx,KIBA数据集,KIBA,Transformer（Morgan + 理化描述符 + ESM2）,0.2308,0.7418,0.4925,0.5339,0.495,4.05,3.66,3.22,0.1581,0.5
+internal-external-ablation-results.xlsx,KIBA数据集,KIBA,Reptile+Transformer（Morgan + 理化描述符 + ESM2）,0.3222,0.6963,0.4665,0.5738,0.506,4.72,4.17,3.58,0.0045,0.6635
+internal-external-ablation-results.xlsx,KIBA数据集,KIBA,GraphDTA GAT_GCN,0.2233,0.724,0.5124,0.4886,0.3716,4.49,3.3,2.83,0.0645,0.4602
+internal-external-ablation-results.xlsx,KIBA数据集,KIBA,GraphDTA GCNNet,0.2122,0.7291,0.5254,0.5036,0.408,4.28,3.59,3.13,0.0462,0.5162
+internal-external-ablation-results.xlsx,KIBA数据集,KIBA,GraphDTA GATNet,-0.1038,0.863,0.6055,0.2624,0.1208,3.88,3.0,2.42,0.3256,0.3991
+internal-external-ablation-results.xlsx,KIBA数据集,KIBA,GraphDTA GINConnvNet,0.1203,0.7705,0.57,0.4077,0.2662,4.37,3.38,2.72,0.1065,0.442
+model-performance-results.xlsx,ChEMBL数据集,ChEMBL,MLP（Morgan + 理化描述符 + ESM2）,0.1806,1.0645,0.7541,0.5764,0.5432,4.63,4.07,3.74,0.0481,0.558
+model-performance-results.xlsx,ChEMBL数据集,ChEMBL,Transformer（Morgan + 理化描述符 + ESM2）,0.1679,1.0727,0.7853,0.5697,0.5395,4.44,3.8,3.48,0.4212,0.5303
+model-performance-results.xlsx,ChEMBL数据集,ChEMBL,GraphDTA GAT_GCN,0.0579,1.1373,0.9173,0.3186,0.3027,2.11,1.65,1.51,0.2018,0.2833
+model-performance-results.xlsx,ChEMBL数据集,ChEMBL,GraphDTA GCNNet,0.0447,1.1452,0.9204,0.3459,0.3316,2.41,1.97,1.79,0.2748,0.3091
+model-performance-results.xlsx,ChEMBL数据集,ChEMBL,GraphDTA GATNet,-0.1528,1.2581,1.008,0.1707,0.1475,1.59,1.42,1.22,0.4662,0.2318
+model-performance-results.xlsx,ChEMBL数据集,ChEMBL,GraphDTA GINConnvNet,-0.0913,1.224,0.9851,0.3384,0.3185,2.84,2.25,2.1,0.5119,0.3403
+model-performance-results.xlsx,Davis数据集,Davis,MLP（Morgan + 理化描述符 + ESM2）,0.1713,1.0705,0.8109,0.5161,0.4863,4.2,3.51,3.18,0.0425,0.4826
+model-performance-results.xlsx,Davis数据集,Davis,Transformer（Morgan + 理化描述符 + ESM2）,0.1713,1.0705,0.8109,0.5161,0.4863,4.2,3.51,3.18,0.0425,0.4826
+model-performance-results.xlsx,Davis数据集,Davis,GraphDTA GAT_GCN,0.3998,0.6615,0.4376,0.4206,0.6378,0.4276,0.735,4.93,0.1155,0.6081
+model-performance-results.xlsx,Davis数据集,Davis,GraphDTA GCNNet,0.366,0.6799,0.4622,0.4402,0.614,0.4315,0.7375,4.93,0.1077,0.5843
+model-performance-results.xlsx,Davis数据集,Davis,GraphDTA GATNet,0.3667,0.6795,0.4617,0.4124,0.6218,0.469,0.7574,4.93,0.1205,0.601
+model-performance-results.xlsx,Davis数据集,Davis,GraphDTA GINConnvNet,0.2146,0.7567,0.4833,0.5742,0.4358,4.34,3.8,3.3,0.2882,0.5561
+model-performance-results.xlsx,BingdingBD数据集,BindingDB,MLP（Morgan + 理化描述符 + ESM2）,0.222,1.0372,0.7985,0.5128,0.4816,3.89,3.37,3.11,0.0255,0.4635
+model-performance-results.xlsx,BingdingBD数据集,BindingDB,Transformer（Morgan + 理化描述符 + ESM2）,0.1838,1.0624,0.7688,0.565,0.5297,4.68,4.13,3.7,0.3985,0.5603
+model-performance-results.xlsx,BingdingBD数据集,BindingDB,GraphDTA GAT_GCN,0.0995,1.2318,0.9586,0.3653,0.3572,3.02,2.68,2.44,0.1826,0.3955
+model-performance-results.xlsx,BingdingBD数据集,BindingDB,GraphDTA GCNNet,0.0519,1.2639,0.9817,0.2942,0.2652,3.37,2.84,2.17,0.2004,0.3612
+model-performance-results.xlsx,BingdingBD数据集,BindingDB,GraphDTA GATNet,0.0891,1.2388,0.9158,0.3497,0.3555,2.46,2.71,1.91,0.2523,0.3725
+model-performance-results.xlsx,BingdingBD数据集,BindingDB,GraphDTA GINConnvNet,0.0677,1.2533,0.99,0.3325,0.3471,3.45,2.5,2.15,0.1839,0.3584
+model-performance-results.xlsx,KIBA数据集,KIBA,MLP（Morgan + 理化描述符 + ESM2）,0.2565,1.014,0.7781,0.5329,0.5038,3.75,3.57,3.11,0.0227,0.4821
+model-performance-results.xlsx,KIBA数据集,KIBA,Transformer（Morgan + 理化描述符 + ESM2）,0.2308,0.7418,0.4925,0.5339,0.495,4.05,3.66,3.22,0.1581,0.5
+model-performance-results.xlsx,KIBA数据集,KIBA,GraphDTA GAT_GCN,0.2233,0.724,0.5124,0.4886,0.3716,4.49,3.3,2.83,0.0645,0.4602
+model-performance-results.xlsx,KIBA数据集,KIBA,GraphDTA GCNNet,0.2122,0.7291,0.5254,0.5036,0.408,4.28,3.59,3.13,0.0462,0.5162
+model-performance-results.xlsx,KIBA数据集,KIBA,GraphDTA GATNet,-0.1038,0.863,0.6055,0.2624,0.1208,3.88,3.0,2.42,0.3256,0.3991
+model-performance-results.xlsx,KIBA数据集,KIBA,GraphDTA GINConnvNet,0.1203,0.7705,0.57,0.4077,0.2662,4.37,3.38,2.72,0.1065,0.442

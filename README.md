@@ -6,7 +6,10 @@
 命令、完全通过 GitHub 网页上传的步骤。
 
 > **发布状态说明**  
-> 本发布副本已修正数据目录解析和 ESM-2 权重加载方式。旧实验目录中的指标与模型权重是在修正前产生的，因此未放入本仓库。正式提交论文结果前，必须使用此版本代码重新训练并核对指标。详见 [发布前检查表](PUBLISH_CHECKLIST.md)。
+> 项目维护者已确认 `results/tables/` 中的三张表为最终实验结果。轻量汇总保存在
+> 仓库中，指标、预测值和模型权重按模型家族打包为 GitHub Release 附件。
+> 当前代码是后续训练和复现所使用的维护版本。附件清单与上传方法见
+> [实验结果与权重上传说明](docs/EXPERIMENT_ARTIFACTS_UPLOAD.md)。
 
 ## 最终特征配置
 
@@ -58,10 +61,13 @@ MLP、Transformer 和 Reptile-Transformer 最终采用的输入组合为：
 |-- preprocessing/             # 四个数据集的预处理脚本
 |-- scripts/
 |   |-- check_esm2_model.py
+|   |-- export_result_tables.py
+|   |-- package_experiment_artifacts.ps1
 |   |-- validate_data.py
 |   |-- package_release.ps1
 |   `-- verify_transfer.ps1
 |-- analysis/
+|-- results/                     # 最终汇总表和机器可读 CSV
 |-- data/data_manifest.json
 |-- DATA.md
 `-- PUBLISH_CHECKLIST.md

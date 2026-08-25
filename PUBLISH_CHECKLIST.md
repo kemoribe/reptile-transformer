@@ -4,10 +4,10 @@
 
 ## 必须完成
 
-- [ ] 使用修正后的 Hugging Face ESM-2 加载方式重新生成特征并重跑最终实验。
-- [ ] 确认论文、表格和图中的指标来自修正版代码，而不是旧缓存或旧检查点。
+- [x] 项目维护者确认 `实验结果/` 中三张 Excel 为最终发布结果来源。
+- [x] 最终表格已复制到 `results/tables/` 并导出统一指标 CSV。
 - [ ] 记录每个模型、数据集的随机种子、epoch、batch size、学习率和 GPU 环境。
-- [ ] 将最终的轻量结果文件加入 `results/`，至少包括指标 JSON/CSV 和生成表图所需预测值。
+- [x] 最终轻量结果、预测值和非空最佳权重已按模型家族整理为 Release 附件。
 - [ ] 补充 ChEMBL 中间输入 `2_all_data_chembl_targets` 的来源、ChEMBL 版本、查询条件和生成步骤。
 - [ ] 核对 ChEMBL、Davis、KIBA、BindingDB 派生数据的再分发条款。
 - [ ] 将 `CITATION.cff` 中的姓名和 GitHub 地址占位符替换为真实信息。

@@ -36,14 +36,20 @@ python scripts\validate_data.py
 
 - `dta-reptile-code-v1.0.0.zip`: source code and documentation
 - `data-processed-*-v1.0.0.zip`: processed datasets
+- `experiment-results-v1.0.0.zip`: final tables, metrics, predictions, and training records
+- `model-weights-mlp-v1.0.0.zip`: MLP best weights
+- `model-weights-transformer-v1.0.0.zip`: Transformer best weights
+- `model-weights-reptile-transformer-v1.0.0.zip`: Reptile-Transformer best weights
+- `model-weights-graphdta-v1.0.0.zip`: non-empty GraphDTA weights
 - `SHA256SUMS.txt`: archive checksums
+- `SHA256SUMS-EXPERIMENT-ARTIFACTS.txt`: result and weight archive checksums
 
 ## Reproducibility status
 
-Before publishing, replace this paragraph with one of the following:
-
-- **Final:** All reported metrics were regenerated with this release and the corrected Hugging Face ESM-2 loader.
-- **Code/data preview:** The loader and data split issues are corrected, but final metrics are still being regenerated. Do not cite the previous metrics as results from this release.
+**Final:** The project owner designated the result workbooks in `results/tables/`
+as the final experimental summaries. Release assets preserve the corresponding
+lightweight outputs and non-empty best-model weights with per-file manifests and
+SHA256 checksums.
 
 ## Citation
 
