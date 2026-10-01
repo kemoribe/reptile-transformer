@@ -1,0 +1,27 @@
+{
+  "accuracy_band_rule": 0.5,
+  "accuracy_1nn": 0.5,
+  "majority_baseline": 0.75,
+  "full_data_band": [
+    0.1295,
+    0.1935
+  ],
+  "boundary_stability": [
+    {
+      "boundary": "b_hi",
+      "mean": 0.2118333333,
+      "min": 0.1935,
+      "max": 0.2485,
+      "std": 0.0317542648,
+      "count": 3
+    },
+    {
+      "boundary": "b_lo",
+      "mean": 0.1295,
+      "min": 0.1295,
+      "max": 0.1295,
+      "std": 0.0,
+      "count": 2
+    }
+  ]
+}

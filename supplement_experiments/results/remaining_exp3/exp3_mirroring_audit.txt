@@ -1,0 +1,37 @@
+实验 3：Target Mirroring 检测 / Binding Profile 相似性审计
+数据源：GrapthDTA data/<ds>_{train,test}.csv；序列同源性：MMseqs2 per_test_target_identity.csv
+定义：max_bp_spearman = 测试靶点与全体训练靶点间最大 binding-profile Spearman ρ
+======================================================================
+
+[chembl] 测试靶点 20（同簇 10 / 跨簇 10）
+  全体:   max-ρ mean=0.690 ± 0.222, median=0.724, ρ≥0.7: 11/20
+  同簇:   mean=0.682, ρ≥0.7: 5/10 (50.0%)
+  跨簇:   mean=0.699, ρ≥0.7: 6/10 (60.0%)
+  Fisher(同簇×ρ≥0.7) p=1;  Mann-Whitney(同簇 vs 跨簇 max-ρ) p=0.5706
+
+[davis] 测试靶点 65（同簇 38 / 跨簇 27）
+  全体:   max-ρ mean=0.779 ± 0.125, median=0.798, ρ≥0.7: 46/65
+  同簇:   mean=0.806, ρ≥0.7: 29/38 (76.3%)
+  跨簇:   mean=0.741, ρ≥0.7: 17/27 (63.0%)
+  Fisher(同簇×ρ≥0.7) p=0.2782;  Mann-Whitney(同簇 vs 跨簇 max-ρ) p=0.02576
+
+[kiba] 测试靶点 34（同簇 20 / 跨簇 14）
+  全体:   max-ρ mean=0.930 ± 0.103, median=1.000, ρ≥0.7: 33/34
+  同簇:   mean=0.951, ρ≥0.7: 20/20 (100.0%)
+  跨簇:   mean=0.900, ρ≥0.7: 13/14 (92.9%)
+  Fisher(同簇×ρ≥0.7) p=0.4118;  Mann-Whitney(同簇 vs 跨簇 max-ρ) p=0.2152
+
+[bindingdb] 测试靶点 78（同簇 47 / 跨簇 31）
+  全体:   max-ρ mean=0.784 ± 0.222, median=0.855, ρ≥0.7: 60/78
+  同簇:   mean=0.779, ρ≥0.7: 38/47 (80.9%)
+  跨簇:   mean=0.791, ρ≥0.7: 22/31 (71.0%)
+  Fisher(同簇×ρ≥0.7) p=0.4114;  Mann-Whitney(同簇 vs 跨簇 max-ρ) p=0.09003
+
+[全局] N=197（同簇 115 / 跨簇 82）
+  同簇 mean=0.809 vs 跨簇 mean=0.782
+  Fisher p=0.1746;  Mann-Whitney p=0.01449
+
+解读：
+  若跨簇靶点仍普遍 ρ≥0.7，说明 binding-profile 泄漏独立于 40% 序列同源
+  （kinase 家族保守 ATP 口袋 → 活性谱天然相关），支持论文关于
+  'identity 阈值不足以阻断 mirroring' 的 limitation 讨论。

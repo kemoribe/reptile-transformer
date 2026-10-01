@@ -1,0 +1,23 @@
+P0 实验2：family-remote 路由器 —— 留一数据集(LODO)验证
+================================================================
+规则: nearest_train_identity < thr → family-remote；真值=MMseqs2@40%聚类标签
+
+[A] LODO 选阈值（其余3数据集上准确率最大化，并列取最接近40%）:
+ held_out  n_test  n_remote  selected_thr  TP  FP  TN  FN  Accuracy  BalancedAcc   FPR   FNR
+   chembl      26        14        40.000  14   1  11   0     0.962        0.958 0.083 0.000
+    davis      65        27        40.000  27   2  36   0     0.969        0.974 0.053 0.000
+     kiba      34        14        40.000  14   1  19   0     0.971        0.975 0.050 0.000
+bindingdb     112        60        40.000  60   5  47   0     0.955        0.952 0.096 0.000
+
+[B] 固定预注册阈值 thr=40%（同口径规则，不作任何数据集拟合）:
+ held_out  n_test  n_remote  selected_thr  TP  FP  TN  FN  Accuracy  BalancedAcc   FPR   FNR
+   chembl      26        14        40.000  14   1  11   0     0.962        0.958 0.083 0.000
+    davis      65        27        40.000  27   2  36   0     0.969        0.974 0.053 0.000
+     kiba      34        14        40.000  14   1  19   0     0.971        0.975 0.050 0.000
+bindingdb     112        60        40.000  60   5  47   0     0.955        0.952 0.096 0.000
+
+LODO-selected: mean Acc=0.964 (range 0.955-0.971), mean BalancedAcc=0.965, max FNR=0.000, max FPR=0.096
+fixed-40     : mean Acc=0.964, mean BalancedAcc=0.965
+选中阈值: {'chembl': 40.0, 'davis': 40.0, 'kiba': 40.0, 'bindingdb': 40.0}
+
+结论: 四折 LODO 准确率全部 ≥90%（95.5%-97.1%），数据驱动选出的阈值与预注册 40% 口径一致，路由器的跨数据集泛化声称成立。

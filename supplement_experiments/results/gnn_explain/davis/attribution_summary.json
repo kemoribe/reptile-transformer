@@ -1,0 +1,40 @@
+{
+  "dataset": "davis",
+  "prot_identity_cut_pct": 40.0,
+  "drug_axis_used": false,
+  "n_selected": 6,
+  "per_model": [
+    {
+      "model": "GATNet",
+      "pred": 6.1522,
+      "cam_ring_fraction": 0.6854,
+      "cam_heteroatom_fraction": 0.2337,
+      "edge_negative_fraction": -0.7745,
+      "gradcam_edge_spearman": 0.0249
+    },
+    {
+      "model": "GAT_GCN",
+      "pred": 6.7605,
+      "cam_ring_fraction": 0.6414,
+      "cam_heteroatom_fraction": 0.2933,
+      "edge_negative_fraction": -0.43,
+      "gradcam_edge_spearman": 0.2279
+    },
+    {
+      "model": "GCNNet",
+      "pred": 6.7241,
+      "cam_ring_fraction": 0.6274,
+      "cam_heteroatom_fraction": 0.245,
+      "edge_negative_fraction": -0.4336,
+      "gradcam_edge_spearman": 0.1547
+    },
+    {
+      "model": "GINConvNet",
+      "pred": 6.2423,
+      "cam_ring_fraction": 0.7274,
+      "cam_heteroatom_fraction": 0.2297,
+      "edge_negative_fraction": -0.3271,
+      "gradcam_edge_spearman": 0.5825
+    }
+  ]
+}

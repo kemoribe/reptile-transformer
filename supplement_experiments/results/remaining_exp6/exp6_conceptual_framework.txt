@@ -1,0 +1,12 @@
+实验 6：理论框架 conceptual figure 已生成（权威数据源）
+  PNG:  d:\lht\修改supplement_output\remaining_experiments\exp6_conceptual_framework.png
+  TIFF: d:\lht\修改supplement_output\remaining_experiments\exp6_conceptual_framework.tiff
+  数据源：τ = Table S3 训练集口径；ΔR² = Figure 6 (plot_gnn_vs_nongnn.py DATASETS_INFO)
+  数据点：
+    ChEMBL     τ=0.122  ΔR²=-0.2041  -> MLP wins
+    Davis      τ=0.137  ΔR²=+0.1412  -> GNN wins
+    KIBA       τ=0.250  ΔR²=-0.0989  -> Reptile wins
+    BindingDB  τ=0.360  ΔR²=-0.1340  -> Reptile wins
+  三区划分：τ<0.13 MLP 优势区；0.13≤τ≤0.20 GNN 优势区；τ>0.20 元学习优势区。
+  注：元学习优势区内 ΔR²<0 表示 GNN 劣于 non-GNN（Reptile 属 non-GNN 家族，
+  其增益来自元学习机制而非分子图）。

@@ -1,0 +1,6 @@
+﻿held_out,boundary,value
+ChEMBL,b_hi,0.1935
+KIBA,b_lo,0.1295
+KIBA,b_hi,0.2485
+BindingDB,b_lo,0.1295
+BindingDB,b_hi,0.1935

@@ -1,0 +1,10 @@
+﻿dataset,metric,n_models,kendall_tau,spearman_rho,standard_winner,audited_winner,winner_reversed,misselection_cost,relative_cost_pct
+bindingdb,R²,4,0.333,0.6,GAT_GCN,GATNet,True,0.0144,36.6
+bindingdb,EF@1%,4,0.816,0.894,GCNNet,GCNNet,False,0.0,0.0
+bindingdb,ECE,4,0.0,-0.2,GINConvNet,GATNet,True,0.0039,19.2
+davis,R²,5,0.0,0.1,GCNNet,Reptile-Transformer,True,0.0154,5.8
+davis,EF@1%,5,0.535,0.53,GAT_GCN,Reptile-Transformer,True,0.8833,17.6
+davis,ECE,5,0.6,0.7,GCNNet,Reptile-Transformer,True,0.0037,46.0
+kiba,R²,5,0.8,0.9,Reptile-Transformer,Reptile-Transformer,False,0.0,0.0
+kiba,EF@1%,5,0.671,0.738,Reptile-Transformer,Reptile-Transformer,False,0.0,0.0
+kiba,ECE,5,0.4,0.4,GCNNet,GAT_GCN,True,0.0146,255.0

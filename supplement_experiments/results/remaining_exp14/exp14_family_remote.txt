@@ -1,0 +1,107 @@
+实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=实验 14：Family-remote 二分类验证
+=
+判定指标：测试靶点到训练集最近靶点的序列一致性 (nearest_train_identity_pct, %)
+Ground truth：MMseqs2 easy-cluster @ 40% min-seq-id 的 same_cluster_40 标签
+分类规则：identity < threshold -> family-remote（走 non-graph 分支）
+
+总测试靶点数: 237（remote 115 / in-family 122）
+AUC(identity 作为打分) = 0.960
+
+[主阈值 40%] 混淆矩阵（全局）:
+              预测 remote   预测 in-family
+真实 remote        115             0
+真实 in-family       9           113
+Accuracy = 0.962   Precision = 0.927   Recall = 1.000
+FPR (in-family 误判为 remote) = 0.074
+FNR (remote 误判为 in-family) = 0.000
+误分类率合计 (FPR+FNR) = 0.074
+
+[阈值扫描]
+  thr=  30%  Acc=0.907  FPR=0.074  FNR=0.113  Prec=0.919  Rec=0.887
+  thr=  35%  Acc=0.941  FPR=0.074  FNR=0.043  Prec=0.924  Rec=0.957
+  thr=  40%  Acc=0.962  FPR=0.074  FNR=0.000  Prec=0.927  Rec=1.000
+  thr=  45%  Acc=0.937  FPR=0.123  FNR=0.000  Prec=0.885  Rec=1.000
+  thr=  50%  Acc=0.878  FPR=0.238  FNR=0.000  Prec=0.799  Rec=1.000
+  thr=  60%  Acc=0.781  FPR=0.426  FNR=0.000  Prec=0.689  Rec=1.000
+
+[逐数据集 @40%]
+  chembl     n= 26 remote= 14  Acc=0.962  FPR=0.083  FNR=0.000
+  davis      n= 65 remote= 27  Acc=0.969  FPR=0.053  FNR=0.000
+  kiba       n= 34 remote= 14  Acc=0.971  FPR=0.050  FNR=0.000
+  bindingdb  n=112 remote= 60  Acc=0.955  FPR=0.096  FNR=0.000
+
+结论（供 Discussion 4.3 引用）：
+  - 判定指标 = 最近训练靶点序列一致性；阈值 = 40%（与 MMseqs2 聚类口径一致）。
+  - 全局 Accuracy=96.2%，FPR=7.4%，FNR=0.0%，AUC=0.960。
+  - 由于 same_cluster_40 的真值即由 40% 一致性定义，identity<40% 规则与真值
+    几乎重合（残余误分类来自聚类的连通分量传递效应：两靶点 identity<40% 仍可
+    经中间序列同簇）。部署建议：threshold=40% 为主，45-50% 为保守档（FNR↓）。

@@ -1,0 +1,5 @@
+﻿held_out,tau,delta_R2,true_GNN_adv,b_lo,b_hi,band_pred,band_correct,nn_pred,nn_correct
+ChEMBL,0.122,-0.2041,0,,0.1935,1,0,1,0
+Davis,0.137,0.1412,1,unidentifiable,unidentifiable,0,0,0,0
+KIBA,0.25,-0.0989,0,0.1295,0.2485,0,1,0,1
+BindingDB,0.36,-0.134,0,0.1295,0.1935,0,1,0,1

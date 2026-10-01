@@ -1,0 +1,37 @@
+P0 实验4：审计 vs 标准（未审计名义冷启动）评估 —— 排名一致性与误选代价
+==========================================================================
+标准评估 = 名义靶点冷启动完整测试集；审计评估 = 40% 同源自由跨簇子集
+模型: GCNNet/GATNet/GAT_GCN/GINConvNet/Reptile-Transformer (davis/kiba/bindingdb)
+
+  dataset metric  kendall_tau  spearman_rho     standard_winner      audited_winner  winner_reversed  misselection_cost  relative_cost_pct
+bindingdb     R²        0.333         0.600             GAT_GCN              GATNet             True             0.0144               36.6
+bindingdb  EF@1%        0.816         0.894              GCNNet              GCNNet            False             0.0000                0.0
+bindingdb    ECE        0.000        -0.200          GINConvNet              GATNet             True             0.0039               19.2
+    davis     R²        0.000         0.100              GCNNet Reptile-Transformer             True             0.0154                5.8
+    davis  EF@1%        0.535         0.530             GAT_GCN Reptile-Transformer             True             0.8833               17.6
+    davis    ECE        0.600         0.700              GCNNet Reptile-Transformer             True             0.0037               46.0
+     kiba     R²        0.800         0.900 Reptile-Transformer Reptile-Transformer            False             0.0000                0.0
+     kiba  EF@1%        0.671         0.738 Reptile-Transformer Reptile-Transformer            False             0.0000                0.0
+     kiba    ECE        0.400         0.400              GCNNet             GAT_GCN             True             0.0146              255.0
+
+逐数据集逐指标的模型名次:
+-- bindingdb --
+  ECE    审计名次(标准名次): GATNet(1|std4) > GINConvNet(2|std1) > GAT_GCN(3|std2) > GCNNet(4|std3)
+  EF@1%  审计名次(标准名次): GCNNet(1|std1) > GINConvNet(1|std2) > GATNet(3|std4) > GAT_GCN(3|std3)
+  R²     审计名次(标准名次): GATNet(1|std2) > GAT_GCN(2|std1) > GCNNet(3|std4) > GINConvNet(4|std3)
+-- davis --
+  ECE    审计名次(标准名次): Reptile-Transformer(1|std3) > GCNNet(2|std1) > GAT_GCN(3|std2) > GATNet(4|std4) > GINConvNet(5|std5)
+  EF@1%  审计名次(标准名次): Reptile-Transformer(1|std1) > GCNNet(2|std3) > GAT_GCN(3|std1) > GATNet(3|std4) > GINConvNet(3|std4)
+  R²     审计名次(标准名次): Reptile-Transformer(1|std4) > GAT_GCN(2|std2) > GCNNet(3|std1) > GATNet(4|std5) > GINConvNet(5|std3)
+-- kiba --
+  ECE    审计名次(标准名次): GAT_GCN(1|std2) > Reptile-Transformer(2|std3) > GINConvNet(3|std4) > GCNNet(4|std1) > GATNet(5|std5)
+  EF@1%  审计名次(标准名次): Reptile-Transformer(1|std1) > GCNNet(2|std4) > GAT_GCN(2|std2) > GATNet(4|std5) > GINConvNet(4|std3)
+  R²     审计名次(标准名次): Reptile-Transformer(1|std1) > GAT_GCN(2|std2) > GINConvNet(3|std4) > GCNNet(4|std3) > GATNet(5|std5)
+
+R²: 2/3 个数据集发生 winner 易主; Kendall τ 范围 0.00-0.80
+误选代价（审计子集 R² 绝对损失）:
+  bindingdb: 标准选 GAT_GCN → ΔR²=0.014 (37% 相对损失)
+  davis: 标准选 GCNNet → ΔR²=0.015 (6% 相对损失)
+
+解读: 负/低 Kendall τ 与非零误选代价直接量化“不做审计的代价”——按未审计
+名义冷启动基准选出的 R² 最优模型，在真正同源自由的部署场景中并非最优。

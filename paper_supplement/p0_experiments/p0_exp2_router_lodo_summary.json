@@ -1,0 +1,14 @@
+{
+  "lodo_mean_acc": 0.9641786522301228,
+  "lodo_min_acc": 0.9553571428571429,
+  "lodo_max_acc": 0.9705882352941176,
+  "lodo_mean_balanced_acc": 0.9647351551956815,
+  "fixed40_mean_acc": 0.9641786522301228,
+  "selected_thresholds": {
+    "chembl": 40.0,
+    "davis": 40.0,
+    "kiba": 40.0,
+    "bindingdb": 40.0
+  },
+  "all_folds_ge_90pct": true
+}

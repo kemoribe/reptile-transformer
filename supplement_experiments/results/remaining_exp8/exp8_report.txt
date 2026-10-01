@@ -1,0 +1,9 @@
+实验 8：配对检验 p 值矩阵热力图已生成（Wilcoxon 符号秩 + BH-FDR）
+  CSV:  d:\lht\修改supplement_output\remaining_experiments\exp8_pvalues.csv
+  PNG:  d:\lht\修改supplement_output\remaining_experiments\exp8_pvalue_heatmap.png
+  TIFF: d:\lht\修改supplement_output\remaining_experiments\exp8_pvalue_heatmap.tiff
+  总检验数: 54（3 数据集 × 6 基线 × 3 指标）
+  BH-FDR < 0.05: 0
+  注：5 seeds 与基线单次值之差做 Wilcoxon；n=5 时 Wilcoxon 最小可达
+  p=0.0625（双侧），因此显著性判读辅以效应量 diff_mean 与方向列。
+  显著且方向有利的检验数: 0
