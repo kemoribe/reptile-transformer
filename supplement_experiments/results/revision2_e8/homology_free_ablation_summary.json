@@ -1,0 +1,26 @@
+{
+  "davis": {
+    "full_R2_winner": "GCNNet",
+    "sub_R2_winner": "Reptile-Transformer",
+    "R2_winner_changed": true,
+    "full_EF1_winner": "GAT_GCN",
+    "sub_EF1_winner": "Reptile-Transformer",
+    "EF1_winner_changed": true
+  },
+  "kiba": {
+    "full_R2_winner": "Reptile-Transformer",
+    "sub_R2_winner": "Reptile-Transformer",
+    "R2_winner_changed": false,
+    "full_EF1_winner": "Reptile-Transformer",
+    "sub_EF1_winner": "Reptile-Transformer",
+    "EF1_winner_changed": false
+  },
+  "bindingdb": {
+    "full_R2_winner": "GAT_GCN",
+    "sub_R2_winner": "GATNet",
+    "R2_winner_changed": true,
+    "full_EF1_winner": "GCNNet",
+    "sub_EF1_winner": "GCNNet",
+    "EF1_winner_changed": false
+  }
+}

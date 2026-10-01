@@ -1,0 +1,169 @@
+{
+  "per_dataset_tau": [
+    {
+      "dataset": "chembl",
+      "n_train_drugs": 264258,
+      "n_test_drugs": 28592,
+      "tau_ECFP4_train": 0.1221,
+      "tau_MACCS_train": 0.4604,
+      "tau_ECFP4_test": 0.1247,
+      "tau_MACCS_test": 0.452
+    },
+    {
+      "dataset": "davis",
+      "n_train_drugs": 66,
+      "n_test_drugs": 66,
+      "tau_ECFP4_train": 0.1367,
+      "tau_MACCS_train": 0.4846,
+      "tau_ECFP4_test": 0.1367,
+      "tau_MACCS_test": 0.4846
+    },
+    {
+      "dataset": "kiba",
+      "n_train_drugs": 2068,
+      "n_test_drugs": 2032,
+      "tau_ECFP4_train": 0.1215,
+      "tau_MACCS_train": 0.4276,
+      "tau_ECFP4_test": 0.1216,
+      "tau_MACCS_test": 0.4279
+    },
+    {
+      "dataset": "bindingdb",
+      "n_train_drugs": 6345,
+      "n_test_drugs": 2265,
+      "tau_ECFP4_train": 0.1092,
+      "tau_MACCS_train": 0.3933,
+      "tau_ECFP4_test": 0.1293,
+      "tau_MACCS_test": 0.4138
+    }
+  ],
+  "ranking_tau_ECFP4_train": [
+    "bindingdb",
+    "kiba",
+    "chembl",
+    "davis"
+  ],
+  "ranking_tau_MACCS_train": [
+    "bindingdb",
+    "kiba",
+    "chembl",
+    "davis"
+  ],
+  "ranking_tau_ECFP4_test": [
+    "kiba",
+    "chembl",
+    "bindingdb",
+    "davis"
+  ],
+  "ranking_tau_MACCS_test": [
+    "bindingdb",
+    "kiba",
+    "chembl",
+    "davis"
+  ],
+  "spearman_correlation_matrix": {
+    "tau_ECFP4_train": {
+      "tau_ECFP4_train": {
+        "spearman_rho": 1.0,
+        "p_value": 0.0
+      },
+      "tau_MACCS_train": {
+        "spearman_rho": 1.0,
+        "p_value": 0.0
+      },
+      "tau_ECFP4_test": {
+        "spearman_rho": 0.4,
+        "p_value": 0.6
+      },
+      "tau_MACCS_test": {
+        "spearman_rho": 1.0,
+        "p_value": 0.0
+      }
+    },
+    "tau_MACCS_train": {
+      "tau_ECFP4_train": {
+        "spearman_rho": 1.0,
+        "p_value": 0.0
+      },
+      "tau_MACCS_train": {
+        "spearman_rho": 1.0,
+        "p_value": 0.0
+      },
+      "tau_ECFP4_test": {
+        "spearman_rho": 0.4,
+        "p_value": 0.6
+      },
+      "tau_MACCS_test": {
+        "spearman_rho": 1.0,
+        "p_value": 0.0
+      }
+    },
+    "tau_ECFP4_test": {
+      "tau_ECFP4_train": {
+        "spearman_rho": 0.4,
+        "p_value": 0.6
+      },
+      "tau_MACCS_train": {
+        "spearman_rho": 0.4,
+        "p_value": 0.6
+      },
+      "tau_ECFP4_test": {
+        "spearman_rho": 1.0,
+        "p_value": 0.0
+      },
+      "tau_MACCS_test": {
+        "spearman_rho": 0.4,
+        "p_value": 0.6
+      }
+    },
+    "tau_MACCS_test": {
+      "tau_ECFP4_train": {
+        "spearman_rho": 1.0,
+        "p_value": 0.0
+      },
+      "tau_MACCS_train": {
+        "spearman_rho": 1.0,
+        "p_value": 0.0
+      },
+      "tau_ECFP4_test": {
+        "spearman_rho": 0.4,
+        "p_value": 0.6
+      },
+      "tau_MACCS_test": {
+        "spearman_rho": 1.0,
+        "p_value": 0.0
+      }
+    }
+  },
+  "group_consistency": [
+    {
+      "dataset": "chembl",
+      "group_tau_ECFP4_train": "low",
+      "group_tau_MACCS_train": "high",
+      "group_tau_ECFP4_test": "low",
+      "group_tau_MACCS_test": "high"
+    },
+    {
+      "dataset": "davis",
+      "group_tau_ECFP4_train": "high",
+      "group_tau_MACCS_train": "high",
+      "group_tau_ECFP4_test": "high",
+      "group_tau_MACCS_test": "high"
+    },
+    {
+      "dataset": "kiba",
+      "group_tau_ECFP4_train": "low",
+      "group_tau_MACCS_train": "high",
+      "group_tau_ECFP4_test": "low",
+      "group_tau_MACCS_test": "high"
+    },
+    {
+      "dataset": "bindingdb",
+      "group_tau_ECFP4_train": "low",
+      "group_tau_MACCS_train": "high",
+      "group_tau_ECFP4_test": "low",
+      "group_tau_MACCS_test": "high"
+    }
+  ],
+  "all_datasets_same_group_across_methods": false
+}
