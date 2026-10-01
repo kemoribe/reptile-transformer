@@ -1,0 +1,13 @@
+dataset,n_train_targets,n_test_targets,coverage,identity_threshold_pct,n_clusters,n_shared_train_test_clusters,n_test_targets_same_cluster,n_test_targets_cross_cluster,same_cluster_ratio_pct,cross_cluster_ratio_pct
+chembl,123,26,0.8,40,97,10,12,14,46.15,53.85
+chembl,123,26,0.8,60,119,8,8,18,30.77,69.23
+chembl,123,26,0.8,80,131,6,6,20,23.08,76.92
+davis,298,65,0.8,40,190,30,38,27,58.46,41.54
+davis,298,65,0.8,60,251,22,25,40,38.46,61.54
+davis,298,65,0.8,80,305,10,13,52,20.0,80.0
+kiba,161,34,0.8,40,114,16,20,14,58.82,41.18
+kiba,161,34,0.8,60,152,11,13,21,38.24,61.76
+kiba,161,34,0.8,80,186,0,0,34,0.0,100.0
+bindingdb,519,112,0.8,40,431,44,52,60,46.43,53.57
+bindingdb,519,112,0.8,60,516,21,26,86,23.21,76.79
+bindingdb,519,112,0.8,80,590,10,11,101,9.82,90.18

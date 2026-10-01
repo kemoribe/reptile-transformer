@@ -1,0 +1,13 @@
+﻿dataset,identity_pct,recalc_cross,original_cross,recalc_ratio,original_ratio,match
+chembl,40,14,14,53.85,53.85,True
+chembl,60,18,18,69.23,69.23,True
+chembl,80,20,20,76.92,76.92,True
+davis,40,27,27,41.54,41.54,True
+davis,60,40,40,61.54,61.54,True
+davis,80,52,52,80.0,80.0,True
+kiba,40,14,14,41.18,41.18,True
+kiba,60,21,21,61.76,61.76,True
+kiba,80,34,34,100.0,100.0,True
+bindingdb,40,60,60,53.57,53.57,True
+bindingdb,60,86,86,76.79,76.79,True
+bindingdb,80,101,101,90.18,90.18,True

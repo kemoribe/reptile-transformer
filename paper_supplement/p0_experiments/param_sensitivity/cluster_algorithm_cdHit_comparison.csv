@@ -1,0 +1,13 @@
+﻿dataset,identity_pct,mmseqs_setcover_n_clusters,cdhit_greedy_n_clusters,mmseqs_cross_ratio_pct,cdhit_cross_ratio_pct,label_agreement_pct,cohen_kappa
+chembl,40,97,98,53.85,61.54,92.31,0.8434
+chembl,60,119,120,69.23,69.23,100.0,1.0
+chembl,80,131,131,76.92,76.92,100.0,1.0
+davis,40,190,195,41.54,43.08,95.38,0.9055
+davis,60,251,253,61.54,61.54,100.0,1.0
+davis,80,305,306,80.0,81.54,98.46,0.9505
+kiba,40,114,116,41.18,41.18,100.0,1.0
+kiba,60,152,151,61.76,61.76,100.0,1.0
+kiba,80,186,187,100.0,100.0,100.0,1.0
+bindingdb,40,431,436,53.57,56.25,97.32,0.9459
+bindingdb,60,516,518,76.79,76.79,100.0,1.0
+bindingdb,80,590,591,90.18,90.18,100.0,1.0

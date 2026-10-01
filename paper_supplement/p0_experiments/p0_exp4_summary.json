@@ -1,0 +1,15 @@
+{
+  "R2_reversal_datasets": [
+    "bindingdb",
+    "davis"
+  ],
+  "R2_kendall_tau": {
+    "bindingdb": 0.333,
+    "davis": 0.0,
+    "kiba": 0.8
+  },
+  "R2_misselection_cost": {
+    "bindingdb": 0.0144,
+    "davis": 0.0154
+  }
+}
