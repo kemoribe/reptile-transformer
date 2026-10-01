@@ -1,0 +1,8 @@
+﻿模型,脚本,优化器,学习率,Batch,Epochs,关键配置,随机种子
+GNN (GraphDTA×4),GrapthDTA/training.py,Adam,0.0005,1024,≤1000(早停patience=50),"ReduceLROnPlateau(0.5, patience=20)",未固定随机种子
+Reptile+Transformer(主模型),run_reptile_transformer.py（+reptile_training.py / reptile_transformer_model.py / data_preprocessing.py）,Adam,0.001,512,200,ESM2 128维嵌入离线预计算(torch.no_grad)、完全冻结不参与训练; weight_decay=1e-4; warmup 5 epochs+余弦退火,未固定随机种子
+Reptile内循环,run_reptile_transformer.py / reptile_training.py,—,—,512,200,inner_steps=3; 梯度累积=1,未固定随机种子
+λ 权重(Reptile模型),reptile_training.py:96-97,—,—,—,—,λ1 contrastive=0.05; λ2 consistency=0.1,—
+Transformer基线,run_transformer_baseline.py:284-298,AdamW,0.00015,(默认),(默认),λ1 contrastive=0.03; λ2 consistency=0.05; λ3 ranking=0.5; λ4 calibration=0.1; warmup后启用,未固定随机种子
+MLP基线,run_baseline_mlp.py:340-346,AdamW,0.001,(默认),(默认),weight_decay=1e-4; 余弦退火,未固定随机种子
+注：全项目训练脚本未固定随机种子（torch/np/random 均未设置），DeepDTA 复现基线除外；“(默认)”表示脚本采用函数默认值。,,,,,,,

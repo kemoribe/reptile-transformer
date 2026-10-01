@@ -1,0 +1,9 @@
+﻿Model,BindingDB,ChEMBL,Davis,KIBA,Mean
+Reptile+Transformer,1.85,1.98,1.75,4.72,2.575
+Transformer,4.68,4.44,4.2,4.05,4.342
+MLP,3.89,4.63,4.2,3.75,4.118
+GraphDTA GAT_GCN,3.02,2.11,0.428,4.49,2.512
+GraphDTA GCNNet,3.37,2.41,0.432,4.28,2.623
+GraphDTA GATNet,2.46,1.59,0.469,3.88,2.1
+GraphDTA GINConnvNet,3.45,2.84,4.34,4.37,3.75
+注：EF@1%（Enrichment Factor，逐靶点计算后平均），加粗列均值；Davis的GNN值受每靶点66化合物小样本影响。,,,,,

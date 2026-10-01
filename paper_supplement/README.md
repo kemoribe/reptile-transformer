@@ -1,8 +1,8 @@
-# 论文 V3 补充材料：P0 稳健性实验归档
+# 论文 V3 补充材料：P0 稳健性实验 + 论文附录归档
 
 本目录归档论文 **V3_P0稳健性验证版**（`Paper_V3_P0_robustness_zh.docx`，
 §3.6.5、Table 6、Tables S26–S31、Figure S11）对应的全部 P0 优先级稳健性
-实验脚本、数值结果与论文写回脚本。
+实验脚本、数值结果、论文写回脚本，以及论文附录表格（S2–S12）与补充图（S1–S11）。
 
 > **可复用版本请使用 [`../homology_audit/`](../homology_audit/) 工具包。**
 > `p0_experiments/` 下的脚本是论文实验的原始运行记录（含本机绝对路径、
@@ -28,12 +28,15 @@ p0_experiments/
 protein_cluster_labels/
   cross_cluster_summary.csv/.json     # 四数据集 40/60/80% 跨簇汇总（审计主结果）
   <dataset>/per_test_target_identity.csv  # 逐测试靶点标签（26/65/34/112 靶点）
+appendix_tables/               # 论文附录 Table S2–S12（CSV，实验最终汇总表）
+figures/                       # 论文补充图 Figure S1–S8（300 dpi PNG；TIFF 见 Release 附件）
 ```
 
 注：MMseqs2 的 FASTA/TSV 中间产物（`clu_*`、`sequences_*.fasta` 等，约 60 MB）
 可由发布数据集经 `homology-audit audit-batch` 完整重生成，故不纳入仓库；
-300 dpi TIFF 版 Figure S11 见 GitHub Release 附件
-`figure-s11-300dpi-v1.1.0.zip`。
+300 dpi TIFF 版 Figure S11 及其他补充图 TIFF 见 GitHub Release 附件
+`figure-s11-300dpi-v1.1.0.zip`。GNN 逐对预测（`gnn_preds/*.npz`）属二进制中间
+产物，可由模型权重复现，不纳入。
 
 ## 五项实验结论摘要
 

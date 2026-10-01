@@ -1,0 +1,9 @@
+﻿τ,区间,落入数据集(平均Tanimoto),R²准则推荐,EF@1%准则推荐,两准则一致性
+0.10,低相似度 (<0.10),无,—,—,—
+0.10,高相似度 (>=0.10),ChEMBL(0.122)、Davis(0.137)、KIBA(0.250)、BindingDB(0.360),ChEMBL→Reptile(0.202)；Davis→GAT_GCN(0.400)；KIBA→Reptile(0.322)；BindingDB→Reptile(0.234),ChEMBL→MLP(4.63)；Davis→GINConvNet(4.34)；KIBA→Reptile(4.72)；BindingDB→Transformer(4.68),1/4一致（KIBA）
+0.13,低相似度 (<0.13),ChEMBL(0.122),ChEMBL→Reptile(0.202),ChEMBL→MLP(4.63),0/1一致（无）
+0.13,高相似度 (>=0.13),Davis(0.137)、KIBA(0.250)、BindingDB(0.360),Davis→GAT_GCN(0.400)；KIBA→Reptile(0.322)；BindingDB→Reptile(0.234),Davis→GINConvNet(4.34)；KIBA→Reptile(4.72)；BindingDB→Transformer(4.68),1/3一致（KIBA）
+0.16,低相似度 (<0.16),ChEMBL(0.122)、Davis(0.137),ChEMBL→Reptile(0.202)；Davis→GAT_GCN(0.400),ChEMBL→MLP(4.63)；Davis→GINConvNet(4.34),0/2一致（无）
+0.16,高相似度 (>=0.16),KIBA(0.250)、BindingDB(0.360),KIBA→Reptile(0.322)；BindingDB→Reptile(0.234),KIBA→Reptile(4.72)；BindingDB→Transformer(4.68),1/2一致（KIBA）
+注：τ 为训练集药物平均ECFP4 Tanimoto（ChEMBL 0.122/Davis 0.137/KIBA 0.250/BindingDB 0.360）。各数据集R²最优与EF@1%最优仅在KIBA一致（Reptile+Transformer）；低相似度场景拟合优者（Reptile/GAT_GCN）富集反而弱。,,,,,
+注：Davis每靶点仅66化合物，GNN的EF@1%小样本失真（GINConvNet 4.34名义最高），实际筛选推荐MLP/Transformer(4.20)。,,,,,

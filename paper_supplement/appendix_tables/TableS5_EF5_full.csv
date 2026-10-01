@@ -1,0 +1,9 @@
+﻿Model,BindingDB,ChEMBL,Davis,KIBA,Mean
+Reptile+Transformer,1.99,1.91,1.62,4.17,2.422
+Transformer,4.13,3.8,3.51,3.66,3.775
+MLP,3.37,4.07,3.51,3.57,3.63
+GraphDTA GAT_GCN,2.68,1.65,0.735,3.3,2.091
+GraphDTA GCNNet,2.84,1.97,0.738,3.59,2.284
+GraphDTA GATNet,2.71,1.42,0.757,3,1.972
+GraphDTA GINConnvNet,2.5,2.25,3.8,3.38,2.982
+注：EF@5%，逐靶点计算后平均。,,,,,

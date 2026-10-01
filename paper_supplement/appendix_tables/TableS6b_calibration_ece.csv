@@ -1,0 +1,16 @@
+﻿Dataset,Model,ECE_prime(scaled),n_test
+ChEMBL,MLP,0.0342,31132
+ChEMBL,Transformer(MSE variant),0.0542,31132
+Davis,GraphDTA GATNet,0.0248,4290
+Davis,GraphDTA GAT_GCN,0.0179,4290
+Davis,GraphDTA GCNNet,0.0137,4290
+Davis,GraphDTA GINConvNet,0.0421,4290
+KIBA,GraphDTA GATNet,0.0202,20502
+KIBA,GraphDTA GAT_GCN,0.004,20502
+KIBA,GraphDTA GCNNet,0.0029,20502
+KIBA,GraphDTA GINConvNet,0.0066,20502
+KIBA,Transformer(full-feat ablation),0.0065,18478
+BindingDB,GraphDTA GATNet,0.0301,7087
+BindingDB,GraphDTA GAT_GCN,0.0218,7087
+BindingDB,GraphDTA GCNNet,0.0237,7087
+BindingDB,GraphDTA GINConvNet,0.0183,7087

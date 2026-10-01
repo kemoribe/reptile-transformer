@@ -1,0 +1,14 @@
+﻿Dataset,Split,Pairs,Unique drugs,Unique targets,Mean Tanimoto (ECFP4),备注
+ChEMBL,train,375230,264258,123,0.1221,（沿用analyze_tanimoto.py）
+ChEMBL,val,66653,58872,41,0.1251,
+ChEMBL,test,30180,28592,26,0.125,
+Davis,train,19668,66,298,0.1367,（沿用analyze_tanimoto.py）
+Davis,val,4224,66,64,0.1367,
+Davis,test,4290,66,65,0.1367,
+KIBA,train,76293,2068,161,0.25,（沿用analyze_tanimoto.py）
+KIBA,val,20862,2023,34,0.1209,
+KIBA,test,20502,2032,34,0.1216,
+BindingDB,train,28259,6345,519,0.36,（沿用analyze_tanimoto.py）
+BindingDB,val,6249,2291,111,0.1195,
+BindingDB,test,7087,2265,112,0.1295,
+注：数据划分采用靶点冷启动（train/test 蛋白序列零重叠）；Tanimoto 为该split唯一药物的ECFP4平均成对相似度（>30000分子时按seed=42抽样20000计算）。train组沿用 analyze_tanimoto.py 论文口径（与Fig3/Fig7阈值分析一致），val/test 由 GrapthDTA/data 口径现算，两组分子集口径不完全相同。,,,,,,

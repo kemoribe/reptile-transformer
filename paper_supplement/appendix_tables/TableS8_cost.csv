@@ -1,0 +1,34 @@
+﻿块A：真实训练日志实测（RTX 4090，AMP；— 表示当年控制台日志未留存）,,,,,,,,,,,
+硬件,类别,模型,数据集,参数量(M),Batch size,计划Epochs,Best epoch,每Epoch耗时(s),达Best累计(min),"峰值显存(GiB,日志)",备注
+"NVIDIA RTX 4090 (24GB), AMP/FP16",GNN,GCNNet,ChEMBL,2.062767,1024,1000,29,18.74,9.1,,每epoch为训练耗时(不含验证); 每epoch 367 batches/375230样本; JSON内10条记录
+"NVIDIA RTX 4090 (24GB), AMP/FP16",GNN,GCNNet,Davis,2.062767,1024,1000,137,0.98,2.2,,每epoch为训练耗时(不含验证); 每epoch 20 batches/19668样本; JSON内10条记录
+"NVIDIA RTX 4090 (24GB), AMP/FP16",GNN,GCNNet,KIBA,2.062767,1024,1000,192,3.95,12.6,,每epoch为训练耗时(不含验证); 每epoch 75 batches/76293样本; JSON内10条记录
+"NVIDIA RTX 4090 (24GB), AMP/FP16",GNN,GCNNet,BindingDB,2.062767,1024,1000,13,1.43,0.3,,每epoch为训练耗时(不含验证); 每epoch 28 batches/28259样本; JSON内10条记录
+"NVIDIA RTX 4090 (24GB), AMP/FP16",GNN,GATNet,ChEMBL,1.460845,1024,1000,2,35.86,1.2,,每epoch为训练耗时(不含验证); 每epoch 367 batches/375230样本; JSON内2条记录
+"NVIDIA RTX 4090 (24GB), AMP/FP16",GNN,GATNet,Davis,1.460845,1024,1000,22,1.14,0.4,,每epoch为训练耗时(不含验证); 每epoch 20 batches/19668样本; JSON内10条记录
+"NVIDIA RTX 4090 (24GB), AMP/FP16",GNN,GATNet,KIBA,1.460845,1024,1000,43,4.12,3,,每epoch为训练耗时(不含验证); 每epoch 75 batches/76293样本; JSON内10条记录
+"NVIDIA RTX 4090 (24GB), AMP/FP16",GNN,GATNet,BindingDB,1.460845,1024,1000,52,1.72,1.5,,每epoch为训练耗时(不含验证); 每epoch 28 batches/28259样本; JSON内10条记录
+"NVIDIA RTX 4090 (24GB), AMP/FP16",GNN,GAT_GCN,ChEMBL,4.749573,1024,1000,10,26.38,4.4,,每epoch为训练耗时(不含验证); 每epoch 367 batches/375230样本; JSON内10条记录
+"NVIDIA RTX 4090 (24GB), AMP/FP16",GNN,GAT_GCN,Davis,4.749573,1024,1000,107,1.27,2.3,,每epoch为训练耗时(不含验证); 每epoch 20 batches/19668样本; JSON内10条记录
+"NVIDIA RTX 4090 (24GB), AMP/FP16",GNN,GAT_GCN,KIBA,4.749573,1024,1000,144,5.22,12.5,,每epoch为训练耗时(不含验证); 每epoch 75 batches/76293样本; JSON内10条记录
+"NVIDIA RTX 4090 (24GB), AMP/FP16",GNN,GAT_GCN,BindingDB,4.749573,1024,1000,25,1.91,0.8,,每epoch为训练耗时(不含验证); 每epoch 28 batches/28259样本; JSON内10条记录
+"NVIDIA RTX 4090 (24GB), AMP/FP16",GNN,GINConvNet,ChEMBL,1.297505,1024,1000,3,27.81,1.4,,每epoch为训练耗时(不含验证); 每epoch 367 batches/375230样本; JSON内3条记录
+"NVIDIA RTX 4090 (24GB), AMP/FP16",GNN,GINConvNet,Davis,1.297505,1024,1000,8,0.93,0.1,,每epoch为训练耗时(不含验证); 每epoch 20 batches/19668样本; JSON内8条记录
+"NVIDIA RTX 4090 (24GB), AMP/FP16",GNN,GINConvNet,KIBA,1.297505,1024,1000,59,3.42,3.4,,每epoch为训练耗时(不含验证); 每epoch 75 batches/76293样本; JSON内10条记录
+"NVIDIA RTX 4090 (24GB), AMP/FP16",GNN,GINConvNet,BindingDB,1.297505,1024,1000,6,1.33,0.1,,每epoch为训练耗时(不含验证); 每epoch 28 batches/28259样本; JSON内6条记录
+"NVIDIA RTX 4090 (24GB), AMP/FP16",Reptile+Transformer,Reptile+Transformer,ChEMBL,15.450499,512,200,140,3.91,9.1,13.57,稳态中位(共199条); 日志 training_20260806_234536.log
+"NVIDIA RTX 4090 (24GB), AMP/FP16",Reptile+Transformer,Reptile+Transformer,Davis,15.450499,512,200,100,3.65,6.1,13.58,稳态中位(共199条); 日志 training_20260807_010527.log
+"NVIDIA RTX 4090 (24GB), AMP/FP16",Reptile+Transformer,Reptile+Transformer,KIBA,15.450499,512,220,115,8.42,16.1,13.97,稳态中位(共125条); 日志 training_20260728_232113.log
+"NVIDIA RTX 4090 (24GB), AMP/FP16",Reptile+Transformer,Reptile+Transformer,BindingDB,15.450499,2048,220,120,413.89,827.8,9.02,稳态中位(共195条); 日志 run_reptile_transformer_20260804_211345.log; 参数量取自 output_bdb_mse 同构权重
+"NVIDIA RTX 4090 (24GB), AMP/FP16",非GNN,MLP,ChEMBL,2.016899,2048,220,,,,,训练输出仅控制台、日志未留存; 耗时见B块微基准(若已运行--bench)
+"NVIDIA RTX 4090 (24GB), AMP/FP16",非GNN,MLP,KIBA,2.016899,2048,220,,,,,训练输出仅控制台、日志未留存; 耗时见B块微基准(若已运行--bench)
+"NVIDIA RTX 4090 (24GB), AMP/FP16",非GNN,Transformer,ChEMBL,15.450499,2048,300,,,,,训练输出仅控制台、日志未留存; 耗时见B块微基准(若已运行--bench)
+"NVIDIA RTX 4090 (24GB), AMP/FP16",非GNN,Transformer,KIBA,15.450499,2048,300,,,,,训练输出仅控制台、日志未留存; 耗时见B块微基准(若已运行--bench)
+块B：统一微基准（RTX 4090，AMP，合成batch，前向+反向×10，仅横向相对比较）,,,,,,,,,,,
+基准项,ms/batch,峰值显存(GiB),备注,,,,,,,,
+"GNN-GCNNet (B=1024, Davis尺度)",20.5,1.01,AMP FP16 前向+反向(含优化器),,,,,,,,
+"GNN-GATNet (B=1024, Davis尺度)",35.6,2.08,AMP FP16 前向+反向(含优化器),,,,,,,,
+"GNN-GAT_GCN (B=1024, Davis尺度)",48.1,2.13,AMP FP16 前向+反向(含优化器),,,,,,,,
+"GNN-GINConvNet (B=1024, Davis尺度)",12.8,0.88,AMP FP16 前向+反向(含优化器),,,,,,,,
+MLP (B=2048),2,0.14,AMP FP16 前向+反向(含优化器),,,,,,,,
+"ReptileTransformer (B=2048, 预计算蛋白特征)",8,0.57,AMP FP16 前向+反向(含优化器),,,,,,,,
