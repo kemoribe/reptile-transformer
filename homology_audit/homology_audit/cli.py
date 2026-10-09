@@ -26,8 +26,10 @@ from pathlib import Path
 from . import __version__
 from .audit import run_audit, run_batch
 from .band_lodo import run_band_lodo
+from .degradation import run_degradation
 from .evaluate import run_evaluation
 from .io_utils import parse_float_list
+from .mirror import run_mirror
 from .negative import run_negative_control
 from .router import discover_label_paths, run_router_validation
 from .sensitivity import run_algorithm_check, run_grid
@@ -159,6 +161,57 @@ def build_parser() -> argparse.ArgumentParser:
                          "paper Table S3 points")
     bl.add_argument("--out", type=Path, required=True)
 
+    # ---- mirror -----------------------------------------------------------
+    mi = sub.add_parser("mirror",
+                        help="binding-spectrum mirror audit (ΔΔG "
+                             "redundancy: shared-mutation Spearman + KS)")
+    mi.add_argument("--data", type=Path, required=True,
+                    help="long CSV of mutation-level measurements "
+                         "(complex_id, split, mutation, ΔΔG or affinities)")
+    mi.add_argument("--out", type=Path, required=True)
+    mi.add_argument("--name", default="dataset")
+    mi.add_argument("--complex-col", default="complex_id")
+    mi.add_argument("--split-col", default="split")
+    mi.add_argument("--mutation-col", default="mutation")
+    mi.add_argument("--ddg-col", default="ddG",
+                    help="ΔΔG column; leave empty to derive from "
+                         "--aff-mut-col/--aff-wt-col")
+    mi.add_argument("--aff-mut-col", default=None)
+    mi.add_argument("--aff-wt-col", default=None)
+    mi.add_argument("--temp-col", default=None,
+                    help="temperature column (K); default 298.15 K")
+    mi.add_argument("--default-temp", type=float, default=298.15)
+    mi.add_argument("--min-shared-mutations", type=int, default=3)
+    mi.add_argument("--min-sites-ks", type=int, default=3)
+    mi.add_argument("--thresholds", default="0.5,0.7")
+    mi.add_argument("--per-target-audit", type=Path, default=None,
+                    help="per_target_audit.csv for the cross-cluster "
+                         "intersection")
+    mi.add_argument("--identity-tag", type=int, default=40)
+    mi.add_argument("--target-id-col", default=None,
+                    help="input column joining rows to audit target_id")
+
+    # ---- degradation ------------------------------------------------------
+    dg = sub.add_parser("degradation",
+                        help="severity verdicts on audit-induced metric "
+                             "degradation (needs evaluate outputs or raw "
+                             "predictions)")
+    src = dg.add_mutually_exclusive_group(required=True)
+    src.add_argument("--evaluation-dir", type=Path,
+                     help="directory containing rank_comparison.csv and "
+                          "audited_evaluation_per_model.csv")
+    src.add_argument("--predictions", type=Path,
+                     help="raw predictions CSV; requires --labels-root and "
+                          "--datasets (evaluate is re-run internally)")
+    dg.add_argument("--labels-root", type=Path)
+    dg.add_argument("--datasets", type=_csv_list)
+    dg.add_argument("--identity-tag", type=int, default=40)
+    dg.add_argument("--metrics", type=_csv_list,
+                    default=["R2", "EF@1%", "ECE"])
+    dg.add_argument("--warn-cost-pct", type=float, default=5.0)
+    dg.add_argument("--fail-cost-pct", type=float, default=10.0)
+    dg.add_argument("--out", type=Path, required=True)
+
     return p
 
 
@@ -235,6 +288,37 @@ def main(argv=None) -> int:
                        metrics=args.metrics)
     elif args.command == "band-lodo":
         run_band_lodo(out_dir=args.out, points_csv=args.points_csv)
+    elif args.command == "mirror":
+        run_mirror(
+            data_csv=args.data, out_dir=args.out, dataset_name=args.name,
+            complex_col=args.complex_col, split_col=args.split_col,
+            mutation_col=args.mutation_col, ddg_col=args.ddg_col or None,
+            aff_mut_col=args.aff_mut_col, aff_wt_col=args.aff_wt_col,
+            temp_col=args.temp_col, default_temp=args.default_temp,
+            min_shared_mutations=args.min_shared_mutations,
+            min_sites_ks=args.min_sites_ks,
+            thresholds=parse_float_list(args.thresholds),
+            per_target_audit=args.per_target_audit,
+            identity_tag=args.identity_tag, target_id_col=args.target_id_col)
+    elif args.command == "degradation":
+        if args.evaluation_dir is not None:
+            run_degradation(
+                out_dir=args.out,
+                ranking_csv=args.evaluation_dir / "rank_comparison.csv",
+                per_model_csv=args.evaluation_dir /
+                "audited_evaluation_per_model.csv",
+                warn_cost_pct=args.warn_cost_pct,
+                fail_cost_pct=args.fail_cost_pct)
+        else:
+            if not args.labels_root or not args.datasets:
+                raise SystemExit("--predictions requires --labels-root and "
+                                 "--datasets")
+            run_degradation(
+                out_dir=args.out, predictions_csv=args.predictions,
+                labels_root=args.labels_root, datasets=args.datasets,
+                identity_tag=args.identity_tag, metrics=args.metrics,
+                warn_cost_pct=args.warn_cost_pct,
+                fail_cost_pct=args.fail_cost_pct)
     else:  # pragma: no cover
         raise SystemExit(f"unknown command {args.command}")
     return 0

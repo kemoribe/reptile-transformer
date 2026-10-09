@@ -1,0 +1,59 @@
+# audit-benchmark configuration template (homology-audit v1.2.0)
+# ------------------------------------------------------------------
+# Every key is optional — unset keys fall back to package defaults.
+# CLI arguments override values in this file.
+#
+# Run:  audit-benchmark --data <path> --output <out> --config this.yaml
+# (or put the path in dataset.data and omit --data)
+
+dataset:
+  name: my_dataset          # output subfolders & the 'dataset' column expected
+                            # by predictions CSVs
+  data: null                # one of:
+                            #   * a folder with <name>_train.csv/<name>_test.csv
+                            #   * a single long CSV (auto-split via its split
+                            #     column, or paired with test_data/test_targets)
+                            #   * a FASTA (paired with test_data)
+                            #   * a DAVIS/KIBA affinity .mat (needs
+                            #     targets_file + sequences_fasta)
+  test_data: null           # optional test CSV/FASTA when data is train-only
+  test_targets: null        # optional file listing test target sequences or ids
+  targets_file: null        # affinity-matrix input: one target name per line
+  sequences_fasta: null     # affinity-matrix input: FASTA keyed by target name
+  affinity_key: affinity    # variable name inside the .mat file
+  seq_column: null          # auto-detect (target_sequence /
+                            # BindingDB_Target_Chain_Sequence / ... ) unless set
+  split_column: null        # auto-detect (split / set / subset / ...) unless set
+
+audit:
+  thresholds: [0.4, 0.6, 0.8]   # MMseqs2 clustering identity thresholds
+  coverage: 0.8                 # bidirectional coverage (-c)
+  cov_mode: 0                   # MMseqs2 --cov-mode
+  cluster_mode: 0               # 0=set-cover, 2=CD-HIT-style greedy
+  threads: 8
+  mmseqs: null                  # path to mmseqs binary (else PATH/env lookup)
+
+mirror:                     # binding-spectrum (ΔΔG) redundancy audit
+  enabled: auto             # auto: run when mutation-level columns are found
+  complex_col: complex_id   # unit over which ΔΔG profiles are compared
+  split_col: split          # column with 'train'/'test' values
+  mutation_col: mutation    # mutation identifier shared across complexes
+  ddg_col: ddG              # ΔΔG column; or derive from affinities below
+  aff_mut_col: null         # e.g. Affinity_mut_parsed
+  aff_wt_col: null          # e.g. Affinity_wt_parsed  (Kd-like, same units)
+  temp_col: null            # temperature column (K)
+  default_temp: 298.15
+  min_shared_mutations: 3   # minimum shared mutations for Spearman rho
+  min_sites_ks: 3           # minimum entries per side for the KS test
+  thresholds: [0.5, 0.7]    # redundancy score thresholds
+  target_id_col: null       # column joining rows to audit target_id (optional)
+
+evaluation:                 # standard vs audited panel comparison
+  predictions: null         # predictions CSV: dataset,model,target_sequence,
+                            # y_true,y_pred  (dataset must equal dataset.name)
+  identity_tag: 40          # audited panel = cross-cluster at this identity
+  metrics: [R2, EF@1%, ECE]
+
+degradation:                # severity verdicts on the evaluation result
+  warn_cost_pct: 5.0        # WARN when relative mis-selection cost >= this
+  fail_cost_pct: 10.0       # FAIL when winner reversed and cost >= this

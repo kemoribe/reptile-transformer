@@ -23,5 +23,17 @@ python -m homology_audit.cli evaluate \
     --labels-root "$OUT/audit" --datasets demo --out "$OUT/eval"
 python -m homology_audit.cli band-lodo --out "$OUT/band"
 
+# ---- v1.2.0 additions -----------------------------------------------------
+# binding-spectrum mirror audit on the mutation-level ΔΔG panel
+python -m homology_audit.cli mirror \
+    --data examples/data/demo_mutation_ddg.csv --out "$OUT/mirror" --name demo \
+    --per-target-audit "$OUT/audit/demo/per_target_audit.csv" --target-id-col target_id
+# degradation severity verdicts from the evaluation outputs
+python -m homology_audit.cli degradation --evaluation-dir "$OUT/eval" \
+    --out "$OUT/degradation"
+# one-command pipeline (prepare -> audit -> evaluate -> degradation)
+python -m homology_audit.pipeline --data examples/data --output "$OUT/pipeline" \
+    --name demo
+
 echo
 echo "All demo outputs are under examples/output (see *_report.txt)."

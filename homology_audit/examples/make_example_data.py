@@ -116,6 +116,60 @@ def main():
     pred_dir.mkdir(exist_ok=True)
     pd.DataFrame(rows).to_csv(pred_dir / "demo_predictions.csv", index=False)
 
+    # ---- mutation-level ΔΔG panel for the mirror audit ----------------------
+    # 5 training complexes + 4 test complexes, 12 mutations each.
+    #   T1 shares 8 mutations with train R1 and repeats its ΔΔG ordering
+    #      -> shared-mutation Spearman ρ high AND KS similarity high
+    #   T2 shares only 2 mutations (below the min-shared cutoff) but its ΔΔG
+    #      *distribution* mirrors R2 -> KS similarity high, rho not comparable
+    #   T3 shares 6 mutations with R3 but with scrambled ΔΔG -> low rho;
+    #      distribution differs -> low KS
+    #   T4 is fully independent -> low on both scores
+    rng3 = np.random.default_rng(SEED + 2)
+    def mut_profile(n, base, noise=0.35, prefix="M"):
+        return {f"{prefix}{i:02d}": round(base + rng3.normal(0, noise), 3)
+                for i in range(n)}
+
+    r1 = mut_profile(12, 1.2)
+    r2 = mut_profile(12, 2.0)
+    r3 = mut_profile(12, 0.8)
+    r4 = mut_profile(12, 1.6)
+    r5 = mut_profile(12, 2.4)
+    t1 = {**{m: round(v + rng3.normal(0, 0.15), 3) for m, v in r1.items()},
+          "X01": 0.4, "X02": 1.9, "X03": 2.8, "X04": 0.9}          # mirror of R1
+    t2_shared = {m: round(v + rng3.normal(0, 0.2), 3)
+                 for m, v in r2.items() if m in ("M00", "M01")}
+    t2 = {**t2_shared, **mut_profile(10, 2.05, noise=0.25, prefix="N")}
+    t3 = {**{m: round(v + rng3.normal(0, 1.5), 3) for m, v in r3.items()},
+          "Y01": 0.5, "Y02": 1.1}                                  # scrambled
+    t4 = mut_profile(11, 1.0)                                      # independent
+
+    # mirror target_ids must match the audit's deterministic test IDs
+    # (sorted unique sequences, zero-padded — same rule as io_utils)
+    seq_a3, seq_b2 = test_specs_demo[0][0], test_specs_demo[1][0]
+    seq_r1, seq_r2 = test_specs_demo[2][0], test_specs_demo[3][0]
+    uniq = sorted({seq for seq, _, _ in test_specs_demo})
+    width = max(4, len(str(len(uniq) - 1)))
+    tid_map = {seq: f"test_{i:0{width}d}" for i, seq in enumerate(uniq)}
+
+    mut_rows = []
+    def emit(cx, split, profile, tid=None):
+        for m, ddg in profile.items():
+            row = {"complex_id": cx, "split": split, "mutation": m,
+                   "ddG": ddg}
+            if tid:
+                row["target_id"] = tid
+            mut_rows.append(row)
+
+    for i, prof in enumerate([r1, r2, r3, r4, r5], 1):
+        emit(f"TRAIN_{i}", "train", prof)
+    emit("TEST_T1", "test", t1, tid=tid_map[seq_a3])   # homologous target
+    emit("TEST_T2", "test", t2, tid=tid_map[seq_b2])   # homologous target
+    emit("TEST_T3", "test", t3, tid=tid_map[seq_r1])   # remote target
+    emit("TEST_T4", "test", t4, tid=tid_map[seq_r2])   # remote target
+    pd.DataFrame(mut_rows).to_csv(data_dir / "demo_mutation_ddg.csv",
+                                  index=False)
+
     print("example data written under", data_dir, "and", pred_dir)
 
 

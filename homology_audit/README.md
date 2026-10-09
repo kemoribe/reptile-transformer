@@ -17,6 +17,9 @@
 | `negative-control` | 残基置乱随机序列负对照（保持长度/组成） | Table S30 |
 | `evaluate` | 审计子集 vs 标准全集评估：排名、winner 易主、误选代价 | Table S29 |
 | `band-lodo` | 一维适用性带/阈值的留一面板验证（含 1-NN、多数类基线） | Table S31（τ≈0.13 降级依据） |
+| `mirror` | **结合谱镜像审计**：共享突变 Spearman ρ + KS 分布相似性，量化序列跨簇但功能冗余的隐性泄漏 | §3.6.5 延伸（PPI/SKEMPI 口径） |
+| `degradation` | **退化指标检测**：对审计前后评估结果自动给出 OK/WARN/FAIL 判级 | Table S29 的自动化判读 |
+| `audit-benchmark` | **一条命令全流程**：prepare → audit → mirror → evaluate → degradation（YAML 配置可选） | 以上全部 |
 
 ---
 
@@ -62,7 +65,41 @@ python -m homology_audit.cli --version
 
 ---
 
-## 2. 五分钟快速上手（内置合成示例）
+## 2. 三分钟快速上手（一条命令版，v1.2.0 新增）
+
+```bash
+audit-benchmark --data <数据路径> --output <输出目录> \
+    [--name demo] [--predictions preds.csv] [--config my.yaml]
+```
+
+`--data` 支持四种常见来源（自动识别，详见第 3 节）：
+
+1. 已拆分目录：`<name>_train.csv` + `<name>_test.csv`（或 `train.fasta`/`test.fasta`）；
+2. 单个长表 CSV（预处理版 Davis/KIBA、BindingDB 导出）：自动识别序列列与
+   split 列；无 split 列时用 `--test-data` / `--test-targets` 补充测试集；
+3. FASTA 对：`--data train.fasta --test-data test.fasta`；
+4. DAVIS/KIBA 原始亲和矩阵：`--data affinity.mat --targets-file kinases.txt
+   --sequences-fasta kinase_seqs.fa [--test-targets test_kinases.txt]`。
+
+全参数也可写在 YAML 配置里（带注释模板见
+[`configs/default_audit.yaml`](configs/default_audit.yaml)，一键运行的示例配置见
+[`configs/demo.yaml`](configs/demo.yaml)）。输出目录结构：
+
+```
+<输出目录>/
+├── prepared/          # 规范化 <name>_{train,test}.csv
+├── audit/<name>/      # MMseqs2 聚类审计（per_target_audit.csv 等）
+├── mirror/            # 结合谱镜像审计（有突变级数据时自动启用）
+├── evaluation/        # 标准 vs 审计两口径评估（给了 --predictions 时）
+├── degradation/       # 退化判级 degradation_report.{csv,txt}
+└── audit-benchmark_summary.txt
+```
+
+交互式教程：[`examples/tutorial.ipynb`](examples/tutorial.ipynb)。
+
+---
+
+## 3. 五分钟快速上手（内置合成示例，分步版）
 
 仓库 `examples/` 下附带一个**完全合成、可直接运行**的小数据集
 （`make_example_data.py` 以固定随机种子生成，两个面板 `demo`/`demo2`，
@@ -116,6 +153,22 @@ python -m homology_audit.cli evaluate \
 
 # 7) 适用性阈值带的留一面板验证（默认内置论文 Table S3 四点）
 python -m homology_audit.cli band-lodo --out examples/output/band
+
+# 8) 结合谱镜像审计（v1.2.0）：突变级 ΔΔG 面板 + 与序列审计交叉
+python -m homology_audit.cli mirror \
+    --data examples/data/demo_mutation_ddg.csv \
+    --out examples/output/mirror --name demo \
+    --per-target-audit examples/output/audit/demo/per_target_audit.csv \
+    --target-id-col target_id
+
+# 9) 退化指标检测（v1.2.0）：对 evaluate 输出自动判级
+python -m homology_audit.cli degradation \
+    --evaluation-dir examples/output/eval --out examples/output/degradation
+
+# 10) 一条命令等价于 prepare→audit→evaluate→degradation（v1.2.0）
+python -m homology_audit.pipeline \
+    --data examples/data --output examples/output/pipeline \
+    --name demo --predictions examples/predictions/demo_predictions.csv
 ```
 
 示例的预期结果（合成数据，固定种子）：
@@ -126,7 +179,14 @@ python -m homology_audit.cli band-lodo --out examples/output/band
 * `evaluate`：R² 的标准口径 winner 与审计口径 winner **发生易主**
   （`GraphLikeModel` → `RemoteExpert`，Kendall τ = −1），演示误选代价；
 * `band-lodo`：带规则 LODO 准确率 0.50 ≤ 多数类基线 0.75，结论为
-  *descriptive region*（与论文 τ≈0.13 的处理一致）。
+  *descriptive region*（与论文 τ≈0.13 的处理一致）；
+* `mirror`（v1.2.0）：4 个测试复合物中 `TEST_T1`（与训练 `TRAIN_1` 共享
+  突变且 ΔΔG 排序一致）max-ρ ≈ 0.87、max-KS ≈ 0.81；`TEST_T2` 无共享突变
+  （ρ 不可比）但分布镜像 `TRAIN_2`（max-KS ≈ 0.75）；独立复合物 `TEST_T4`
+  两个分数都最低——0.7 阈值下 2/4 冗余，且冗余复合物恰为同簇（跨簇交集
+  口径 0/2），演示"序列审计看不见的功能冗余"；
+* `degradation`（v1.2.0）：R² 面板 winner 易主 + 误选代价 9.3% → **WARN**；
+  ECE 面板 winner 易主 + 相对代价 92.4% → **FAIL**；总体判级 FAIL。
 
 自动化测试（含端到端）：
 
@@ -141,9 +201,9 @@ python -m unittest discover -s tests -v
 
 ---
 
-## 3. 输入文件规范
+## 4. 输入文件规范
 
-### 3.1 审计输入（两种方式二选一）
+### 4.1 审计输入（两种方式二选一）
 
 **方式 A — CSV（推荐，GraphDTA 风格）**：训练/测试各一个 CSV，至少包含
 蛋白序列列（默认列名 `target_sequence`，可用 `--seq-column` 修改）：
@@ -162,7 +222,7 @@ CC...,MKTLLLTL... ,AAAAA
 序列同样被去重并重新赋予 `train_#### / test_####` 命名空间 ID
 （聚类标签依赖此前缀区分训练/测试成员）。
 
-### 3.2 `evaluate` 的预测文件
+### 4.2 `evaluate` 的预测文件
 
 长表 CSV，必需列：`dataset, model, y_true, y_pred`，以及下列任一连接键：
 
@@ -177,14 +237,40 @@ davis,GCNNet,MKTLLLTL...,5.0,4.82
 预测行数与化合物数不受限制，但**每个模型必须覆盖相同的测试靶点集合**，
 否则排名无意义（工具不强制，请自行保证）。
 
-### 3.3 `band-lodo` 的点表（可选）
+### 4.3 `mirror` 的突变级输入（v1.2.0 新增）
+
+长表 CSV，每行一个突变测量，必需列（列名可用参数覆盖）：
+
+```csv
+complex_id,split,mutation,ddG
+1CSE_E_I,test,MA14A,1.23
+1CSE_D_C,train,EK35A,0.71
+```
+
+* `split` 取值 `train` / `test`；`ddG` 为该突变的 ΔΔG（kcal/mol）。
+* 没有 ΔΔG 列时给 `--aff-mut-col` / `--aff-wt-col`（Kd 类亲和值，单位在
+  比值中抵消）+ 可选 `--temp-col`（K，缺省 298.15 K），工具按
+  `ddG = R·T·ln(aff_wt/aff_mut)` 自动推导；
+* 可选 `--target-id-col` + `--per-target-audit`：把镜像结果与序列审计的
+  `per_target_audit.csv` 交叉，区分"同簇冗余"与"序列跨簇但仍冗余"。
+
+两个互补的冗余分数（对每个 test 复合物取全部 train 复合物中的最大值）：
+
+1. **共享突变 Spearman ρ**：在两个复合物都测到的突变上关联 ΔΔG（需
+   `--min-shared-mutations` 个共享突变，默认 3）；
+2. **KS 分布相似性** `similarity = 1 − KS statistic`：比较 ΔΔG 分布整体
+   （需每侧 ≥ `--min-sites-ks` 个条目，默认 3）。
+
+`max ≥ 阈值`（默认 0.7；0.5 作为中等带）即判定为镜像冗余。
+
+### 4.4 `band-lodo` 的点表（可选）
 
 CSV 列：`name,x,y`（可选 `effect` 列展示效应量）。`y=1` 表示模型家族在该
 面板占优。不给 `--points-csv` 时使用内置论文 Table S3 四点。
 
 ---
 
-## 4. 输出文件说明
+## 5. 输出文件说明
 
 ```
 <out>/
@@ -223,6 +309,8 @@ CSV 列：`name,x,y`（可选 `effect` 列展示效应量）。`y=1` 表示模�
 | `algorithm-check` | `cluster_algorithm_comparison.csv`（簇数、跨簇比例、标签一致率、Cohen's κ） |
 | `negative-control` | `negative_control_results.csv`、`negative_control_summary.csv`、`*_report.txt` |
 | `evaluate` | `audited_evaluation_per_model.csv`（逐模型两口径值与名次）、`rank_comparison.csv`（Kendall/Spearman、winner、误选代价）、报告 |
+| `mirror` | `per_complex_mirror.csv`（逐测试复合物 max-ρ / max-KS 相似性、best train 复合物、cross_cluster 标记）、`mirror_summary.csv`（各阈值的冗余比例，含跨簇交集口径）、`mirror_report.txt` |
+| `degradation` | `degradation_report.csv`（在 rank_comparison 基础上追加 `rank_flips`、`n_degraded_models`、`severity` 列）、`degradation_report.txt`（总体判级） |
 | `band-lodo` | `band_lodo_folds.csv`、`band_lodo_boundaries.csv`、`band_lodo_summary.json` |
 
 所有聚类命令**可断点续跑**：目标 `*_cluster.tsv` 已存在时自动跳过 MMseqs2
@@ -230,7 +318,7 @@ CSV 列：`name,x,y`（可选 `effect` 列展示效应量）。`y=1` 表示模�
 
 ---
 
-## 5. 在你自己的 DTA 基准上使用（推荐流程）
+## 6. 在你自己的 DTA 基准上使用（推荐流程）
 
 ```bash
 # (1) 审计全部数据集
@@ -272,7 +360,7 @@ python -m homology_audit.cli evaluate --predictions all_predictions.csv \
 
 ---
 
-## 6. 指标口径（evaluate）
+## 7. 指标口径（evaluate）
 
 与论文同源自由消融协议一致，在**被评估面板内的全部（靶点, 化合物）对上池化**：
 
@@ -287,7 +375,7 @@ python -m homology_audit.cli evaluate --predictions all_predictions.csv \
 
 ---
 
-## 7. 论文 P0 稳健性实验的复现
+## 8. 论文 P0 稳健性实验的复现
 
 本工具包即论文新增 §3.6.5 / Tables S26–S31 / Figure S11 的实现来源。
 在四个基准数据集（GraphDTA 风格 CSV）上：
@@ -306,7 +394,7 @@ Figure S11 的热力图可直接用 `sensitivity` 输出的 `param_grid.csv` 绘
 
 ---
 
-## 8. Python API
+## 9. Python API
 
 所有命令都有同名 Python 函数，可嵌入自己的流程：
 
@@ -315,6 +403,11 @@ from pathlib import Path
 from homology_audit.audit import run_batch
 from homology_audit.router import run_router_validation, discover_label_paths
 from homology_audit.evaluate import run_evaluation
+from homology_audit.mirror import run_mirror                      # v1.2.0
+from homology_audit.degradation import run_degradation            # v1.2.0
+from homology_audit.adapters import prepare_inputs                # v1.2.0
+from homology_audit.pipeline import run_audit_benchmark           # v1.2.0
+from homology_audit.config import load_config, validate_config    # v1.2.0
 
 run_batch(data_root=Path("data"), datasets=["davis", "kiba"],
           out_root=Path("audit"), thresholds=(0.4, 0.6, 0.8),
@@ -323,11 +416,13 @@ run_router_validation(discover_label_paths(Path("audit"), ["davis", "kiba"]),
                       out_dir=Path("router"))
 run_evaluation(Path("preds.csv"), Path("audit"), ["davis", "kiba"],
                out_dir=Path("eval"))
+run_audit_benchmark(data=Path("data/davis.csv"), output=Path("out"),
+                    config_path=Path("configs/default_audit.yaml"))
 ```
 
 ---
 
-## 9. 常见问题
+## 10. 常见问题
 
 **Q1：Windows 报 `Input xxx.fasta does not exist` 或 busybox 相关错误？**
 请把 `--mmseqs` 指到**解压目录里**的 `mmseqs.exe`，不要只拷贝单独的 exe；
@@ -356,7 +451,7 @@ CD-HIT 的算法对应物）给出对照；本工具不直接依赖 CD-HIT。
 
 ---
 
-## 10. 引用
+## 11. 引用
 
 如使用本工具包，请引用论文对同源性审计与 P0 稳健性实验的相应章节
 （§3.1、§3.6.5，Tables S26–S31，Figure S11），以及

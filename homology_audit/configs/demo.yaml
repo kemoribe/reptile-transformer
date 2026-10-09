@@ -1,0 +1,10 @@
+# audit-benchmark demo config: full pipeline on the synthetic 'demo' dataset
+dataset:
+  name: demo
+  data: examples/data        # split directory with demo_train.csv/demo_test.csv
+audit:
+  thresholds: [0.4, 0.6, 0.8]
+mirror:
+  enabled: false             # split-dir layout has no mutation columns
+evaluation:
+  predictions: examples/predictions/demo_predictions.csv
