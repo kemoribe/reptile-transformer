@@ -1,0 +1,66 @@
+rows_total=6798
+rows_resolved=4864
+train=3838
+test=1026
+chains_resolved=442/502
+
+1A22_A: rescue(cif,best=0,cov=0.81)
+1A22_B: rescue(seq,best=41,cov=0.51)
+1BJ1_L: no_map_or_seq
+1BP3_A: rescue(cif,best=0,cov=0.81)
+1BRS_D: rescue(cif,best=0,cov=0.75)
+1DAN_U: rescue(seq,best=1,cov=0.59)
+1E50_B: rescue(seq,best=0,cov=0.80)
+1H9D_B: rescue(seq,best=0,cov=0.67)
+1JTG_A: rescue(seq,best=0,cov=0.62)
+1K8R_B: rescue(seq,best=0,cov=0.67)
+1KBH_A: low_cov(best=-60,cov=0.00)
+1KBH_B: low_cov(best=-60,cov=0.00)
+1KTZ_A: rescue(cif,best=30,cov=0.67)
+1LP9_A: no_map_or_seq
+1MAH_A: rescue(cif,best=10,cov=0.62)
+1U7F_B: rescue(seq,best=-57,cov=0.50)
+2AJF_E: rescue(seq,best=0,cov=0.75)
+2AK4_A: no_map_or_seq
+2AK4_C: no_map_or_seq
+2AK4_D: no_map_or_seq
+2AK4_E: no_map_or_seq
+2C0L_A: rescue(seq,best=13,cov=0.67)
+2C5D_A: rescue(seq,best=22,cov=0.67)
+2C5D_B: rescue(seq,best=22,cov=0.67)
+2DSQ_I: rescue(cif,best=15,cov=0.75)
+2E7L_Q: no_map_or_seq
+2J8U_A: no_map_or_seq
+2JCC_A: no_map_or_seq
+2NY7_G: rescue(seq,best=19,cov=0.50)
+2UWE_A: no_map_or_seq
+2VN5_B: rescue(seq,best=1,cov=0.50)
+3BT1_U: rescue(cif,best=2,cov=0.71)
+3C60_D: rescue(cif,best=16,cov=0.62)
+3IDX_G: rescue(seq,best=0,cov=0.77)
+3NGB_H: no_map_or_seq
+3NGB_L: no_map_or_seq
+3S9D_A: rescue(cif,best=7,cov=0.42)
+3S9D_B: rescue(seq,best=5,cov=0.72)
+3SE3_B: rescue(cif,best=14,cov=0.81)
+3SE4_B: rescue(cif,best=1,cov=0.50)
+3SE4_C: rescue(seq,best=2,cov=0.88)
+3VR6_G: rescue(cif,best=31,cov=0.67)
+4B0M_M: rescue(cif,best=3,cov=0.60)
+4JEU_B: rescue(seq,best=5,cov=0.67)
+4KRP_A: rescue(cif,best=-54,cov=0.50)
+4N8V_G: rescue(cif,best=6,cov=0.75)
+4NKQ_B: rescue(seq,best=29,cov=0.76)
+4P23_D: rescue(cif,best=-9,cov=0.62)
+4P5T_D: rescue(cif,best=-8,cov=0.62)
+4PWX_A: rescue(cif,best=52,cov=0.71)
+4PWX_B: rescue(cif,best=4,cov=0.75)
+4RS1_A: rescue(seq,best=7,cov=0.77)
+4RS1_B: rescue(seq,best=6,cov=0.59)
+4U6H_E: no_map_or_seq
+4YH7_B: rescue(seq,best=19,cov=0.83)
+5C6T_H: rescue(cif,best=5,cov=0.67)
+5E6P_A: rescue(seq,best=-59,cov=0.33)
+5E6P_B: rescue(seq,best=7,cov=0.67)
+5F4E_B: rescue(seq,best=0,cov=0.75)
+5UFQ_C: rescue(cif,best=-51,cov=0.50)

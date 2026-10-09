@@ -1,0 +1,5 @@
+﻿dataset,n_train_targets,n_test_targets,coverage,cov_mode,cluster_mode,identity_threshold_pct,n_clusters,n_shared_train_test_clusters,n_test_targets_same_cluster,n_test_targets_cross_cluster,same_cluster_ratio_pct,cross_cluster_ratio_pct
+skempi_prpi_low,336,69,0.8,0,0,20,231,0,0,69,0.0,100.0
+skempi_prpi_low,336,69,0.8,0,0,25,232,0,0,69,0.0,100.0
+skempi_prpi_low,336,69,0.8,0,0,30,236,0,0,69,0.0,100.0
+skempi_prpi_low,336,69,0.8,0,0,35,242,0,0,69,0.0,100.0

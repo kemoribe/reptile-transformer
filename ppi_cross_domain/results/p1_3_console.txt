@@ -1,0 +1,117 @@
+﻿Audited exclusions: 40% -> 1 complexes ['1EAW_A_B']..., 30% -> 22 complexes
+  Standard: 1026 rows, 59 complexes
+  Audited-40%: 999 rows, 58 complexes
+  Audited-30%: 485 rows, 37 complexes
+TargetScaler: mean=-0.9030, std=1.4251
+Building features ...
+Features built in 1s
+=== seed 42 ===
+python : C:\Users\lenovo\AppData\Local\Programs\Python\Python39\lib\site-packages\torch\nn\modules\module.py:1355: User
+Warning: expandable_segments not supported on this platform (Triggered internally at C:\actions-runner\_work\pytorch\py
+torch\pytorch\c10/cuda/CUDAAllocatorConfig.h:35.)
+At line:15 char:2705
++ ... ents:True'; python "d:\lht\审计验证与跨领域\p1_3_train_eval.py" > "d:\lht\审计验 ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\lenovo...orConfig.h:35.):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  return t.to(
+d:\lht\审计验证与跨领域\p1_3_train_eval.py:376: ConstantInputWarning: An input array is constant; the correlation coefficient i
+s not defined.
+  out['Spearman'] = float(spearmanr(y, p).statistic)
+d:\lht\审计验证与跨领域\p1_3_train_eval.py:376: ConstantInputWarning: An input array is constant; the correlation coefficient i
+s not defined.
+  out['Spearman'] = float(spearmanr(y, p).statistic)
+d:\lht\审计验证与跨领域\p1_3_train_eval.py:376: ConstantInputWarning: An input array is constant; the correlation coefficient i
+s not defined.
+  out['Spearman'] = float(spearmanr(y, p).statistic)
+=== seed 43 ===
+d:\lht\审计验证与跨领域\p1_3_train_eval.py:376: ConstantInputWarning: An input array is constant; the correlation coefficient i
+s not defined.
+  out['Spearman'] = float(spearmanr(y, p).statistic)
+d:\lht\审计验证与跨领域\p1_3_train_eval.py:376: ConstantInputWarning: An input array is constant; the correlation coefficient i
+s not defined.
+  out['Spearman'] = float(spearmanr(y, p).statistic)
+d:\lht\审计验证与跨领域\p1_3_train_eval.py:376: ConstantInputWarning: An input array is constant; the correlation coefficient i
+s not defined.
+  out['Spearman'] = float(spearmanr(y, p).statistic)
+=== seed 44 ===
+d:\lht\审计验证与跨领域\p1_3_train_eval.py:376: ConstantInputWarning: An input array is constant; the correlation coefficient i
+s not defined.
+  out['Spearman'] = float(spearmanr(y, p).statistic)
+d:\lht\审计验证与跨领域\p1_3_train_eval.py:376: ConstantInputWarning: An input array is constant; the correlation coefficient i
+s not defined.
+  out['Spearman'] = float(spearmanr(y, p).statistic)
+d:\lht\审计验证与跨领域\p1_3_train_eval.py:376: ConstantInputWarning: An input array is constant; the correlation coefficient i
+s not defined.
+  out['Spearman'] = float(spearmanr(y, p).statistic)
+
+=== Aggregate (mean over 3 seeds) ===
+
+--- Spearman (mean±std) ---
+ESM2-mean+MLP    Audited-30%:0.0265±0.0293  Audited-40%:0.0796±0.0224  Standard:0.1051±0.0202
+ESM2-site+MLP    Audited-30%:0.3214±0.0521  Audited-40%:0.3479±0.0544  Standard:0.3448±0.0536
+ESM2-site+TF     Audited-30%:0.2371±0.0424  Audited-40%:0.1773±0.0065  Standard:0.1906±0.0091
+Linear           Audited-30%:0.2553±0.0000  Audited-40%:0.2802±0.0000  Standard:0.2537±0.0000
+RF               Audited-30%:0.1598±0.0098  Audited-40%:0.1815±0.0051  Standard:0.1782±0.0058
+Zero             Audited-30%:0.0000±0.0000  Audited-40%:0.0000±0.0000  Standard:0.0000±0.0000
+
+--- RMSE (mean±std) ---
+ESM2-mean+MLP    Audited-30%:2.0993±0.0026  Audited-40%:2.6186±0.0090  Standard:2.5876±0.0093
+ESM2-site+MLP    Audited-30%:1.9845±0.0439  Audited-40%:2.4850±0.0710  Standard:2.4576±0.0701
+ESM2-site+TF     Audited-30%:2.0724±0.0746  Audited-40%:2.6294±0.0389  Standard:2.6011±0.0396
+Linear           Audited-30%:2.0654±0.0000  Audited-40%:2.6193±0.0000  Standard:2.5900±0.0000
+Mean             Audited-30%:2.1057±0.0000  Audited-40%:2.6359±0.0000  Standard:2.6047±0.0000
+RF               Audited-30%:2.0970±0.0053  Audited-40%:2.5940±0.0051  Standard:2.5639±0.0050
+Zero             Audited-30%:2.3747±0.0000  Audited-40%:2.9579±0.0000  Standard:2.9208±0.0000
+
+--- R2 (mean±std) ---
+ESM2-mean+MLP    Audited-30%:-0.0045±0.0025  Audited-40%:-0.0312±0.0071  Standard:-0.0272±0.0074
+ESM2-site+MLP    Audited-30%:0.1021±0.0395  Audited-40%:0.0709±0.0529  Standard:0.0729±0.0526
+ESM2-site+TF     Audited-30%:0.0202±0.0707  Audited-40%:-0.0399±0.0309  Standard:-0.0381±0.0317
+Linear           Audited-30%:0.0277±0.0000  Audited-40%:-0.0317±0.0000  Standard:-0.0291±0.0000
+Mean             Audited-30%:-0.0106±0.0000  Audited-40%:-0.0448±0.0000  Standard:-0.0408±0.0000
+RF               Audited-30%:-0.0023±0.0051  Audited-40%:-0.0119±0.0040  Standard:-0.0085±0.0040
+Zero             Audited-30%:-0.2853±0.0000  Audited-40%:-0.3157±0.0000  Standard:-0.3087±0.0000
+
+--- MAE (mean±std) ---
+ESM2-mean+MLP    Audited-30%:1.5944±0.0031  Audited-40%:1.8611±0.0021  Standard:1.8313±0.0039
+ESM2-site+MLP    Audited-30%:1.4847±0.0533  Audited-40%:1.7449±0.0572  Standard:1.7206±0.0585
+ESM2-site+TF     Audited-30%:1.5906±0.0340  Audited-40%:1.8568±0.0192  Standard:1.8291±0.0206
+Linear           Audited-30%:1.5516±0.0000  Audited-40%:1.8524±0.0000  Standard:1.8284±0.0000
+Mean             Audited-30%:1.5900±0.0000  Audited-40%:1.8658±0.0000  Standard:1.8364±0.0000
+RF               Audited-30%:1.5695±0.0022  Audited-40%:1.8421±0.0014  Standard:1.8145±0.0016
+Zero             Audited-30%:1.7527±0.0000  Audited-40%:2.1020±0.0000  Standard:2.0596±0.0000
+
+=== Rank reversal & mis-selection cost ===
+
+[Spearman] rank under Standard -> Audited-40%:
+  ESM2-mean+MLP    5 -> 5
+  ESM2-site+MLP    1 -> 1
+  ESM2-site+TF     3 -> 4 *** REVERSAL
+  Linear           2 -> 2
+  RF               4 -> 3 *** REVERSAL
+  Zero             6 -> 6
+  best@Standard=ESM2-site+MLP, best@Audited-40%=ESM2-site+MLP, mis-selection cost=0.0000
+
+[RMSE] rank under Standard -> Audited-40%:
+  ESM2-mean+MLP    3 -> 3
+  ESM2-site+MLP    1 -> 1
+  ESM2-site+TF     5 -> 5
+  Linear           4 -> 4
+  Mean             6 -> 6
+  RF               2 -> 2
+  Zero             7 -> 7
+  best@Standard=ESM2-site+MLP, best@Audited-40%=ESM2-site+MLP, mis-selection cost=0.0000
+
+[R2] rank under Standard -> Audited-40%:
+  ESM2-mean+MLP    3 -> 3
+  ESM2-site+MLP    1 -> 1
+  ESM2-site+TF     5 -> 5
+  Linear           4 -> 4
+  Mean             6 -> 6
+  RF               2 -> 2
+  Zero             7 -> 7
+  best@Standard=ESM2-site+MLP, best@Audited-40%=ESM2-site+MLP, mis-selection cost=0.0000
+
+Saved p1_out/p1_model_results.csv
