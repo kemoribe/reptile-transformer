@@ -93,8 +93,9 @@ class TrainingConfig:
         self.PATIENCE = 40  # 增加耐心值
         
         # 损失权重（平衡排序和回归）
-        self.CONTRASTIVE_WEIGHT = 0.05  # 对比学习权重
-        self.CONSISTENCY_WEIGHT = 0.1  # 一致性损失权重
+        # 支持环境变量覆盖（供 λ 敏感性分析 supplement_s9 使用，默认值即论文设定）
+        self.CONTRASTIVE_WEIGHT = float(os.environ.get('REPTILE_LAMBDA1', 0.05))  # 对比学习权重
+        self.CONSISTENCY_WEIGHT = float(os.environ.get('REPTILE_LAMBDA2', 0.1))  # 一致性损失权重
         self.RANKING_WEIGHT = 0.3  # 排序损失权重（平衡排序和回归）
         
         # 批处理 - 最大化GPU利用率
@@ -113,6 +114,11 @@ class TrainingConfig:
         self.USE_COMPILE = False
         self.COMPILE_MODE = 'reduce-overhead'
         self.MIXED_PRECISION = True
+        # 外循环 delta 在线累加：峰值显存 O(参数量) 而非 O(任务数×参数量)
+        # 与离线 stack→mean 数学等价；靶点数多（>300）时必须开启
+        self.ONLINE_DELTA_ACCUM = False
+        # 在线累加的分块大小：每 N 个靶点做一次向量化 stack/sum，避免逐靶点 add_ 开销
+        self.ONLINE_ACCUM_CHUNK = 32
         
         # 断点保存
         self.CHECKPOINT_INTERVAL = 10
@@ -228,6 +234,12 @@ class ReptileTrainer:
         self.training_history = []
         self.patience_counter = 0
         self.current_epoch = 0
+        self.epochs_run = 0
+        self.best_epoch = None
+        # 训练预算记录（用于 6.1 预算匹配对照）
+        self.total_inner_updates = 0
+        self.total_meta_updates = 0
+        self.total_samples_seen = 0
         
         # 混合精度训练
         if torch.cuda.is_available() and self.config.MIXED_PRECISION:
@@ -245,7 +257,60 @@ class ReptileTrainer:
             model.parameters(),
             lr=self.config.INNER_LR
         )
-    
+
+        # ===== 梯度冲突诊断（E3，默认关闭；REPTILE_GRAD_DIAG=1 开启）=====
+        # 对 MSE / ListNet排序 / 对比 / 一致性 四个损失分别求梯度，记录两两余弦
+        self.grad_diag_on = os.environ.get('REPTILE_GRAD_DIAG', '0') == '1'
+        self.grad_diag_epochs = {
+            int(x) for x in os.environ.get('REPTILE_GRAD_DIAG_EPOCHS', '1,2,3,10,20').split(',') if x.strip()
+        }
+        self.grad_diag_max_tasks = int(os.environ.get('REPTILE_GRAD_DIAG_TASKS', '8'))
+        self.grad_diag_records = []
+        self._diag_epoch = 0
+        self._diag_task_idx = 0
+
+    def _record_grad_conflict(self, l_mse, l_rank, l_con, l_cons):
+        """E3：四个损失分别对可训练参数求梯度，计算两两余弦相似度（不影响正常反传）"""
+        import itertools
+        params = [p for p in self.model.parameters() if p.requires_grad]
+        named_losses = [('MSE', l_mse), ('Rank', l_rank), ('Contrast', l_con), ('Consist', l_cons)]
+        vecs = {}
+        for name, loss in named_losses:
+            grads = torch.autograd.grad(loss, params, retain_graph=True, allow_unused=True)
+            # 未被该损失使用的参数补零，保证四个向量等长（标准做法：在全参数空间比较方向）
+            flat = torch.cat([
+                (g.detach() if g is not None else torch.zeros_like(p)).reshape(-1).float()
+                for g, p in zip(grads, params)
+            ])
+            vecs[name] = flat
+        rec = {'epoch': self._diag_epoch + 1, 'task_idx': self._diag_task_idx}
+        for name, loss in named_losses:
+            rec[f'loss_{name}'] = float(loss.detach().item())
+        for (na, _), (nb, _) in itertools.combinations(named_losses, 2):
+            va, vb = vecs[na], vecs[nb]
+            if va.numel() == 0 or vb.numel() == 0:
+                cos = float('nan')
+            else:
+                cos = float(F.cosine_similarity(va.unsqueeze(0), vb.unsqueeze(0)).item())
+            rec[f'cos_{na}_{nb}'] = cos
+        self.grad_diag_records.append(rec)
+
+    def _dump_grad_conflict(self):
+        """训练结束写出梯度冲突诊断（JSON）"""
+        if not (self.grad_diag_on and self.grad_diag_records):
+            return
+        import csv as _csv
+        out_json = os.path.join(self.output_dir, 'grad_conflict.json')
+        with open(out_json, 'w') as f:
+            json.dump(self.grad_diag_records, f, indent=2)
+        keys = list(self.grad_diag_records[0].keys())
+        out_csv = os.path.join(self.output_dir, 'grad_conflict.csv')
+        with open(out_csv, 'w', newline='') as f:
+            w = _csv.DictWriter(f, fieldnames=keys)
+            w.writeheader()
+            w.writerows(self.grad_diag_records)
+        self.logger.info(f"📈 梯度冲突诊断已保存: {out_json} / {out_csv} ({len(self.grad_diag_records)} 条)")
+
     def _save_checkpoint(self, epoch, val_metrics, is_best=False):
         """保存断点"""
         checkpoint = {
@@ -442,24 +507,19 @@ class ReptileTrainer:
             'AUPR': aupr
         }
     
-    def _inner_loop(self, morgan, maccs, descriptors, protein, y_norm):
+    def _inner_loop(self, morgan, maccs, descriptors, protein, y_norm, restore=True):
         """
         内循环：在单个靶点上进行快速适应（GPU优化）
-        
+
         Args:
-            morgan: (n_samples, MORGAN_BITS) - 已在GPU上
-            maccs: (n_samples, MACCS_DIM) - 已在GPU上（新增MACCS keys特征）
-            descriptors: (n_samples, DESC_DIM) - 已在GPU上
-            protein: (n_samples, ESM2_DIM) - 已在GPU上
-            y_norm: (n_samples,) - 已在GPU上
-        
-        Returns:
-            adapted_params: 适应后的参数
-            avg_loss: 平均损失
+            ...
+            restore: True=Reptile（内循环后恢复初始参数）；False=direct_supervised
+                     （保留适应后的参数，直接作为监督更新）
         """
-        # 保存初始参数（仅保存一次）
-        initial_params = {name: param.data.clone() for name, param in self.model.named_parameters() 
-                          if param.requires_grad}
+        # 保存初始参数（仅保存一次；direct 模式不需要恢复）
+        if restore:
+            initial_params = {name: param.data.clone() for name, param in self.model.named_parameters()
+                              if param.requires_grad}
         
         # 任务自适应内循环学习率（创新点）
         # 数据量多的靶点：小学习率（已有足够信息）
@@ -533,7 +593,15 @@ class ReptileTrainer:
                 
                 if self.config.CONSISTENCY_WEIGHT > 0:
                     total_loss += self.config.CONSISTENCY_WEIGHT * consistency_loss
-            
+
+                # E3 梯度冲突诊断（指定 epoch 的前 N 个任务、每个任务第 0 个内步采样一次）
+                if (self.grad_diag_on and step == 0
+                        and (self._diag_epoch + 1) in self.grad_diag_epochs
+                        and self._diag_task_idx < self.grad_diag_max_tasks
+                        and batch_y.shape[0] >= 2 and 'ranking_loss' in locals()):
+                    self._record_grad_conflict(mse_loss, ranking_loss,
+                                               contrastive_loss, consistency_loss)
+
             # 反向传播（混合精度）
             if self.scaler is not None:
                 self.scaler.scale(total_loss).backward()
@@ -547,8 +615,15 @@ class ReptileTrainer:
                 self.inner_optimizer.step()
             
             self.inner_optimizer.zero_grad()
-            losses.append(total_loss.detach().item())
-        
+            self.total_inner_updates += 1
+            self.total_samples_seen += int(batch_morgan.shape[0])
+            # 保留 GPU 张量，避免每步 .item() 强制同步（每 epoch 约 400 次）
+            losses.append(total_loss.detach())
+
+        # direct_supervised：保留适应后的参数，不做 Reptile 恢复/插值
+        if not restore:
+            return None, torch.stack(losses).mean().item()
+
         # 计算参数变化（在GPU上完成，避免CPU拷贝）
         adapted_params = {}
         for name, param in self.model.named_parameters():
@@ -560,7 +635,7 @@ class ReptileTrainer:
             if param.requires_grad:
                 param.data.copy_(initial_params[name])
         
-        return adapted_params, np.mean(losses)
+        return adapted_params, torch.stack(losses).mean().item()
     
     def _meta_update(self, task_deltas):
         """
@@ -571,6 +646,7 @@ class ReptileTrainer:
         """
         # 清空梯度
         self.meta_optimizer.zero_grad()
+        self.total_meta_updates += 1
         
         # 计算平均梯度
         n_tasks = len(task_deltas)
@@ -596,6 +672,43 @@ class ReptileTrainer:
         
         # 更新元参数
         self.meta_optimizer.step()
+
+    def _accumulate_delta_chunk(self, sum_delta, chunk):
+        """把一批任务的 delta 向量化求和后累加到 sum_delta（O(参数量) 显存）。
+
+        与「把所有任务 delta stack 后 mean」数学等价，但避免逐靶点对每个参数
+        张量单独 add_ 的 Python/launch 开销。
+        """
+        if not chunk:
+            return sum_delta
+        names = list(chunk[0].keys())
+        if sum_delta is None:
+            sum_delta = {}
+            for name in names:
+                sum_delta[name] = torch.stack([d[name] for d in chunk], dim=0).sum(dim=0).detach()
+        else:
+            with torch.no_grad():
+                for name in names:
+                    chunk_sum = torch.stack([d[name] for d in chunk], dim=0).sum(dim=0)
+                    sum_delta[name].add_(chunk_sum)
+                    del chunk_sum
+        return sum_delta
+
+    def _meta_update_online(self, sum_delta, n_tasks):
+        """E4：在线累加版外循环更新。与 _meta_update 数学完全一致：
+        stock: grad = -(stack(deltas).mean) / accumulation_steps，
+               accumulation_steps = max(1, n_tasks // GRADIENT_ACCUMULATION_STEPS)。
+        峰值显存由 O(任务数 × 参数量) 降为 O(参数量)。"""
+        self.meta_optimizer.zero_grad()
+        self.total_meta_updates += 1
+        if n_tasks == 0:
+            return
+        accumulation_steps = max(1, n_tasks // self.config.GRADIENT_ACCUMULATION_STEPS)
+        with torch.no_grad():
+            for name, param in self.model.named_parameters():
+                if param.requires_grad and name in sum_delta:
+                    param.grad = -(sum_delta[name] / n_tasks) / accumulation_steps
+        self.meta_optimizer.step()
     
     def train(self, resume=False):
         """完整训练流程（GPU优化）"""
@@ -616,14 +729,25 @@ class ReptileTrainer:
         
         for epoch in range(self.current_epoch, self.config.EPOCHS):
             epoch_start_time = time.time()
-            
+            self.epochs_run = epoch + 1
+            self._diag_epoch = epoch
+
             # 训练模式
             self.model.train()
-            
+
             # 收集所有任务的参数变化
             task_deltas = []
+            # E4 在线模式：不保存所有任务的整模型 delta（任务数×参数量会爆显存），
+            # 改为分块向量化累加；数学与「stack→mean」完全等价
+            online_accum = getattr(self.config, 'ONLINE_DELTA_ACCUM', False)
+            accum_chunk = max(1, int(getattr(self.config, 'ONLINE_ACCUM_CHUNK', 32)))
+            control_mode = getattr(self.config, 'CONTROL_MODE', 'reptile')
+            direct = control_mode == 'direct_supervised'
+            chunk_deltas = []
+            sum_delta = None
             total_inner_loss = 0.0
             n_tasks = 0
+            self._diag_task_idx = 0
             
             # 打乱训练靶点顺序
             target_names = self.train_loader.get_all_targets()
@@ -639,30 +763,56 @@ class ReptileTrainer:
                     if morgan.shape[0] < 5:
                         continue
                     
-                    # 内循环适应
-                    adapted_params, inner_loss = self._inner_loop(morgan, maccs, descriptors, protein, y_norm)
-                    
+                    # 内循环适应；direct_supervised 保留更新后的参数，不做 Reptile 插值
+                    adapted_params, inner_loss = self._inner_loop(
+                        morgan, maccs, descriptors, protein, y_norm, restore=not direct)
+
+                    if direct:
+                        total_inner_loss += inner_loss
+                        n_tasks += 1
+                        self._diag_task_idx += 1
+                        continue
+
                     # 计算参数变化（delta = adapted - initial）
                     delta = {}
                     for name, param in self.model.named_parameters():
                         if param.requires_grad:
                             delta[name] = adapted_params[name] - param.data
-                    
-                    task_deltas.append(delta)
+
+                    if online_accum:
+                        # 分块累加：每 accum_chunk 个靶点做一次向量化 stack/sum
+                        chunk_deltas.append(delta)
+                        if len(chunk_deltas) >= accum_chunk:
+                            sum_delta = self._accumulate_delta_chunk(sum_delta, chunk_deltas)
+                            chunk_deltas.clear()
+                        del adapted_params
+                    else:
+                        task_deltas.append(delta)
                     total_inner_loss += inner_loss
                     n_tasks += 1
+                    self._diag_task_idx += 1
                     
                 except Exception as e:
                     self.logger.error(f"⚠️ Error processing {target_name}: {e}")
                     continue
+
+            # 处理最后一个不足 accum_chunk 的分块
+            if online_accum and chunk_deltas:
+                sum_delta = self._accumulate_delta_chunk(sum_delta, chunk_deltas)
+                chunk_deltas.clear()
             
-            # 外循环更新
+            # 外循环更新（direct_supervised 不做 meta update）
             if n_tasks > 0:
-                self._meta_update(task_deltas)
-                self.scheduler.step(epoch)
+                if not direct:
+                    if online_accum:
+                        self._meta_update_online(sum_delta, n_tasks)
+                    else:
+                        self._meta_update(task_deltas)
+                    self.scheduler.step(epoch)
                 
                 avg_inner_loss = total_inner_loss / n_tasks
-                current_lr = self.scheduler.get_last_lr()[0]
+                current_lr = (self.inner_optimizer.param_groups[0]['lr'] if direct
+                              else self.scheduler.get_last_lr()[0])
                 
                 epoch_time = time.time() - epoch_start_time
                 
@@ -703,6 +853,8 @@ class ReptileTrainer:
                 
                 # 保存检查点
                 is_best = val_metrics['R2'] > self.best_val_r2
+                if is_best:
+                    self.best_epoch = epoch + 1
                 self._save_checkpoint(epoch, val_metrics, is_best)
                 
                 # 检查早停
@@ -711,9 +863,11 @@ class ReptileTrainer:
                     break
             
             # 清理内存（减少GPU内存碎片）
+            # 注：empty_cache 会强制设备同步，每 epoch 调用造成 GPU 周期性停顿；
+            # 24GB 显存充足，降为每 10 epoch 清理一次（不影响数值结果）
             del task_deltas
             gc.collect()
-            if torch.cuda.is_available():
+            if torch.cuda.is_available() and (epoch + 1) % 10 == 0:
                 torch.cuda.empty_cache()
         
         total_time = time.time() - total_start_time
@@ -723,6 +877,36 @@ class ReptileTrainer:
         history_path = os.path.join(self.output_dir, 'training_history.json')
         with open(history_path, 'w') as f:
             json.dump(self.training_history, f, indent=2, default=str)
+
+        # 训练预算记录（6.1 预算匹配对照）
+        epochs_run = int(getattr(self, 'epochs_run', self.current_epoch + 1))
+        best_epoch = self.best_epoch
+        if best_epoch is None and self.training_history:
+            best = max(self.training_history, key=lambda r: float(r.get('val_r2', -1e9)))
+            best_epoch = int(best.get('epoch', 0)) + 1
+        budget = {
+            'control_mode': getattr(self.config, 'CONTROL_MODE', 'reptile'),
+            'epochs_run': epochs_run,
+            'n_train_targets': len(self.train_loader.get_all_targets()),
+            'inner_steps': int(self.config.INNER_STEPS),
+            'inner_updates': int(self.total_inner_updates),
+            'meta_updates': int(self.total_meta_updates),
+            'samples_seen': int(self.total_samples_seen),
+            'inner_updates_per_epoch': (self.total_inner_updates / max(1, epochs_run)),
+            'best_epoch': best_epoch,
+            'best_val_r2': float(self.best_val_r2),
+            'walltime_s': float(total_time),
+            'batch_size': int(self.config.BATCH_SIZE),
+            'inner_lr': float(self.config.INNER_LR),
+            'meta_lr': float(self.config.META_LR),
+        }
+        with open(os.path.join(self.output_dir, 'training_budget.json'), 'w',
+                  encoding='utf-8') as f:
+            json.dump(budget, f, indent=2, ensure_ascii=False)
+        self.logger.info(f"📦 训练预算: {json.dumps(budget, ensure_ascii=False)}")
+
+        # E3：写出梯度冲突诊断
+        self._dump_grad_conflict()
         
         return self.training_history
     
@@ -841,10 +1025,11 @@ class ReptileTrainer:
                 all_y_true.extend(y_true)
                 all_y_pred.extend(y_pred)
                 
-                # 计算单个靶点指标
-                target_metrics = self._compute_metrics(np.array(y_true), np.array(y_pred))
-                target_metrics['samples'] = len(y_true)
-                per_target_metrics[target_name] = target_metrics
+                # 计算单个靶点指标（跳过 <2 样本的靶点，避免 pearsonr 报错）
+                if len(y_true) >= 2:
+                    target_metrics = self._compute_metrics(np.array(y_true), np.array(y_pred))
+                    target_metrics['samples'] = len(y_true)
+                    per_target_metrics[target_name] = target_metrics
         
         # 计算整体指标（R²、RMSE等全局计算）
         y_true = np.array(all_y_true)

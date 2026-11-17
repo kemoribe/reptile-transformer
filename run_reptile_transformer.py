@@ -31,8 +31,6 @@ from data_preprocessing import (
     ProteinFeatureExtractor,
     get_all_targets,
     precompute_features,
-    clear_precomputed_features,
-    validate_precomputed_features,
     TargetScaler,
     TargetDataLoader,
     LazySubset
@@ -63,29 +61,44 @@ def parse_args():
     parser.add_argument('--inner_steps', type=int, default=3, help="内循环步数")
     parser.add_argument('--gradient_accumulation', type=int, default=1, help="梯度累积步数")
     parser.add_argument('--gpu', type=str, default='0', help="GPU设备编号，如'0'或'0,1'")
-    parser.add_argument(
-        '--esm2_model',
-        type=str,
-        default=None,
-        help='Hugging Face ESM-2 本地目录或模型名',
-    )
-    parser.add_argument(
-        '--rebuild_features',
-        action='store_true',
-        help='删除旧特征缓存并用当前 Hugging Face ESM-2 重新生成',
-    )
-    parser.add_argument(
-        '--data_dir',
-        type=str,
-        default=None,
-        help="预处理数据目录，默认使用 data/processed/chembl",
-    )
+    parser.add_argument('--data_dir', type=str, default=None, help="预处理数据目录，默认使用3_all_data_chembl_targets_preprocessed")
     parser.add_argument('--output_dir', type=str, default=None, help="输出目录")
     parser.add_argument('--force', action='store_true', help='强制重新训练（忽略已完成状态）')
     parser.add_argument('--ablation', type=str, default='none',
                         choices=['none', 'morgan_descriptors'],
                         help='特征消融: none(全部特征) / morgan_descriptors(Morgan+理化+ESM2, 屏蔽MACCS)')
+    parser.add_argument('--seed', type=int, default=None,
+                        help='随机种子(python/numpy/torch/cuda)；不指定则保持历史行为(不固定)。'
+                             '注：不启用 cudnn.deterministic，保留 benchmark 以最大化 GPU 利用率。')
+    parser.add_argument('--ranking_weight', type=float, default=None,
+                        help='排序损失权重；不指定则使用 TrainingConfig 默认值(0.3)')
+    parser.add_argument('--contrastive_weight', type=float, default=None,
+                        help='对比损失权重；不指定则使用环境变量/默认值')
+    parser.add_argument('--consistency_weight', type=float, default=None,
+                        help='一致性损失权重；不指定则使用环境变量/默认值')
+    parser.add_argument('--fusion_mode', type=str, default='bidirectional',
+                        choices=['bidirectional', 'concat'],
+                        help='融合模块：双向交叉注意力 / concat 对照')
+    parser.add_argument('--online_delta_accum', action='store_true',
+                        help='外循环 delta 在线累加：峰值显存 O(参数量)，'
+                             '与离线 stack→mean 数学等价；训练靶点多时必须开启')
+    parser.add_argument('--control_mode', default='reptile',
+                        choices=['reptile', 'direct_supervised'],
+                        help='reptile=完整 Reptile；direct_supervised=保留内循环更新、'
+                             '去掉 Reptile 参数插值（预算匹配监督对照）')
     return parser.parse_args()
+
+
+def set_seed(seed):
+    """固定随机源；为最大化 GPU 利用率不强制 deterministic 算法（5 次重复测量的即自然波动）"""
+    import random
+    random.seed(seed)
+    np.random.seed(seed)
+    import torch
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
 
 def main():
@@ -99,18 +112,7 @@ def main():
         FEATURES_PATH = OUTPUT_DIR / "precomputed_features.npz"
         SCALER_PATH = OUTPUT_DIR / "target_scaler.json"
         CONFIG_PATH = OUTPUT_DIR / "training_config.json"
-
-    if args.data_dir:
-        os.environ['PREPROCESSED_DIR'] = args.data_dir
-        print(f"📂 使用自定义数据目录: {args.data_dir}")
-
-    if args.esm2_model:
-        os.environ['ESM2_MODEL'] = args.esm2_model
-        print(f"🧬 使用 ESM-2 模型: {args.esm2_model}")
-
-    if args.rebuild_features:
-        args.force = True
-
+    
     # 跳过已完成
     final_results_path = OUTPUT_DIR / 'final_results.json'
     if final_results_path.exists() and not args.resume and not getattr(args, 'force', False):
@@ -124,17 +126,26 @@ def main():
             if ckpt_path.exists():
                 ckpt_path.unlink()
                 print(f"🗑 已清除旧断点: {ckpt_path}")
-        for path in clear_precomputed_features(FEATURES_PATH):
-            print(f"🗑 已清除旧特征: {path}")
-        for name in ('target_scaler.json', 'final_results.json'):
-            path = OUTPUT_DIR / name
-            if path.exists():
-                path.unlink()
-                print(f"🗑 已清除旧训练产物: {path}")
+        # 清除旧的临时 .npy 文件和预计算特征（不同数据集 shape 不同，必须清除）
+        for npy_name in ['_morgan.npy', '_maccs.npy', '_desc.npy', '_protein.npy', '_y.npy',
+                         'precomputed_features.npz', 'target_scaler.json', 'final_results.json']:
+            npy_path = OUTPUT_DIR / npy_name
+            if npy_path.exists():
+                npy_path.unlink()
+                print(f"🗑 已清除旧特征: {npy_path}")
+    
+    # 设置数据目录（如果指定）
+    if args.data_dir:
+        os.environ['PREPROCESSED_DIR'] = args.data_dir
+        print(f"📂 使用自定义数据目录: {args.data_dir}")
     
     # 确定设备（支持多GPU）
     import torch
     if torch.cuda.is_available():
+        # GPU 最大化利用：TF32（精度无损于本任务，matmul 显著提速）+ cudnn.benchmark
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
+        torch.backends.cudnn.benchmark = True
         os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
         device = torch.device('cuda:0')
         num_gpus = torch.cuda.device_count()
@@ -165,7 +176,12 @@ def main():
     
     # 创建输出目录
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    
+
+    # 固定随机种子（须在数据采样/模型初始化之前）
+    if args.seed is not None:
+        set_seed(args.seed)
+        print(f"🎲 随机种子已固定: {args.seed} (TF32+cudnn.benchmark 保持开启)")
+
     # 1. 获取所有靶点
     print("\n📂 加载靶点信息...")
     test_mode = args.test_mode or args.quick_test
@@ -185,19 +201,14 @@ def main():
     print(f"   Test: {len(all_targets['test'])} targets")
     
     # 2. 预计算特征（如果需要）
-    if not FEATURES_PATH.exists():
-        if args.no_precompute:
-            raise FileNotFoundError(
-                f"未找到特征缓存: {FEATURES_PATH}。移除 --no_precompute 后重新运行。"
-            )
+    if not args.no_precompute or not FEATURES_PATH.exists():
         print("\n🔧 预计算特征...")
         
-        # 初始化特征提取器
+        # 初始化特征提取器（ESM2 默认 CPU；设环境变量 ESM2_USE_GPU=1 可走 GPU 加速预计算）
         mol_extractor = MoleculeFeatureExtractor()
         protein_extractor = ProteinFeatureExtractor(
-            model_path=args.esm2_model,
-            output_dim=480,
-        )
+            model_path=str(BASE_DIR / "esm2_model"), output_dim=128,
+            use_gpu=(os.environ.get('ESM2_USE_GPU', '0') == '1' and __import__('torch').cuda.is_available()))
         
         # 预计算特征
         precompute_features(all_targets, protein_extractor, mol_extractor, FEATURES_PATH)
@@ -212,8 +223,7 @@ def main():
             print("\n✅ 特征预计算完成!")
             return
     else:
-        metadata = validate_precomputed_features(FEATURES_PATH)
-        print(f"\n📦 使用已验证的特征: {metadata['esm2_loader']}")
+        print("\n📦 使用已预计算的特征")
     
     # 3. 拟合归一化器
     print("\n📏 拟合归一化器...")
@@ -269,7 +279,7 @@ def main():
     
     # 5. 创建模型
     print("\n🧠 创建模型...")
-    model = ReptileTransformer()
+    model = ReptileTransformer(fusion_mode=args.fusion_mode)
 
     # 初始化权重
     model.apply(init_weights)
@@ -409,6 +419,14 @@ def main():
     config.EPOCHS = args.epochs
     config.INNER_STEPS = args.inner_steps
     config.GRADIENT_ACCUMULATION_STEPS = args.gradient_accumulation
+    config.ONLINE_DELTA_ACCUM = bool(args.online_delta_accum)
+    config.CONTROL_MODE = args.control_mode
+    if args.ranking_weight is not None:
+        config.RANKING_WEIGHT = args.ranking_weight
+    if args.contrastive_weight is not None:
+        config.CONTRASTIVE_WEIGHT = args.contrastive_weight
+    if args.consistency_weight is not None:
+        config.CONSISTENCY_WEIGHT = args.consistency_weight
     
     # 创建训练器
     trainer = ReptileTrainer(
@@ -441,7 +459,9 @@ def main():
             'inner_steps': trainer.config.INNER_STEPS,
             'meta_lr': trainer.config.META_LR,
             'epochs': trainer.config.EPOCHS,
-            'batch_size': trainer.config.BATCH_SIZE
+            'batch_size': trainer.config.BATCH_SIZE,
+            'ablation': args.ablation,
+            'seed': args.seed
         },
         'best_val_r2': trainer.best_val_r2,
         'best_val_rmse': trainer.best_val_rmse

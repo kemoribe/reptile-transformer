@@ -26,7 +26,7 @@ HIDDEN_DIM = 512  # 原始维度，保证稳定性
 MORGAN_BITS = 2048
 MACCS_DIM = 167  # MACCS keys维度（创新点：多尺度分子特征）
 DESC_DIM = 10
-ESM2_DIM = 480  # facebook/esm2_t12_35M_UR50D hidden size
+ESM2_DIM = 128  # 原始维度，保证稳定性
 NUM_HEADS = 8  # 原始注意力头数
 NUM_LAYERS = 2  # 原始层数
 DROPOUT = 0.1  # 原始dropout
@@ -106,30 +106,55 @@ class MoleculeEncoder(nn.Module):
 class ProteinEncoder(nn.Module):
     """蛋白质特征编码器：使用ESM2预训练模型"""
     
-    def __init__(self, model_path=None, output_dim=ESM2_DIM):
+    def __init__(self, model_path="./esm2_model", output_dim=ESM2_DIM):
         super().__init__()
-        from transformers import AutoModel, AutoTokenizer
-
-        model_path = model_path or os.environ.get(
-            "ESM2_MODEL", "facebook/esm2_t12_35M_UR50D"
-        )
+        import esm
+        
         self.output_dim = output_dim
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-        self.model = AutoModel.from_pretrained(
-            model_path,
-            add_pooling_layer=False,
+        
+        # 加载配置
+        config_path = os.path.join(model_path, "config.json")
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+        
+        hidden_dim = config.get("hidden_size", 480)
+        num_layers = config.get("num_hidden_layers", 12)
+        num_heads = config.get("num_attention_heads", 20)
+        
+        # 创建ESM2模型
+        self.alphabet = esm.Alphabet.from_architecture("ESM-1b")
+        self.model = esm.ESM2(
+            num_layers=num_layers,
+            embed_dim=hidden_dim,
+            attention_heads=num_heads,
+            alphabet=self.alphabet
         )
-        hidden_dim = self.model.config.hidden_size
-        if output_dim != hidden_dim:
-            raise ValueError(f"ESM-2 output_dim must be {hidden_dim}; got {output_dim}")
+        
+        # 加载权重
+        weights_path = os.path.join(model_path, "pytorch_model.bin")
+        if os.path.exists(weights_path):
+            state_dict = torch.load(weights_path, map_location='cpu', weights_only=True)
+            self.model.load_state_dict(state_dict, strict=False)
+        else:
+            safetensors_path = os.path.join(model_path, "model.safetensors")
+            if os.path.exists(safetensors_path):
+                from safetensors.torch import load_file
+                state_dict = load_file(safetensors_path)
+                self.model.load_state_dict(state_dict, strict=False)
         
         # 冻结所有参数
         for param in self.model.parameters():
             param.requires_grad = False
         
+        # 投影层
+        self.proj = nn.Linear(hidden_dim, output_dim)
+        
+        # 批处理转换器
+        self.batch_converter = self.alphabet.get_batch_converter()
+        
         # 移到设备
         self.model = self.model.to(device)
-        self.model.eval()
+        self.proj = self.proj.to(device)
     
     @torch.no_grad()
     def forward(self, sequence):
@@ -138,22 +163,18 @@ class ProteinEncoder(nn.Module):
         if len(sequence) > 1022:
             sequence = sequence[:1022]
         
-        encoded = self.tokenizer(
-            sequence,
-            return_tensors="pt",
-            truncation=True,
-            max_length=1024,
-            return_special_tokens_mask=True,
-        )
-        special_tokens_mask = encoded.pop("special_tokens_mask").to(device)
-        encoded = {key: value.to(device) for key, value in encoded.items()}
-        token_repr = self.model(**encoded).last_hidden_state
-        content_mask = encoded["attention_mask"].bool() & ~special_tokens_mask.bool()
-        embedding = (
-            token_repr * content_mask.unsqueeze(-1)
-        ).sum(dim=1) / content_mask.sum(dim=1, keepdim=True).clamp_min(1)
+        data = [("protein", sequence)]
+        _, _, batch_tokens = self.batch_converter(data)
+        batch_tokens = batch_tokens.to(device)
         
-        return embedding.squeeze(0)
+        results = self.model(batch_tokens, repr_layers=[self.model.num_layers])
+        token_repr = results["representations"][self.model.num_layers]
+        
+        # 使用平均池化
+        embedding = token_repr.mean(dim=1).squeeze(0)
+        embedding = self.proj(embedding)
+        
+        return embedding
 
 
 # ==========================
@@ -323,9 +344,12 @@ class ReptileTransformer(nn.Module):
     3. 对比学习：增强药物-蛋白质对的表示学习
     """
     
-    def __init__(self):
+    def __init__(self, fusion_mode='bidirectional'):
         super().__init__()
-        
+        if fusion_mode not in ('bidirectional', 'concat'):
+            raise ValueError("fusion_mode must be 'bidirectional' or 'concat'")
+        self.fusion_mode = fusion_mode
+
         # 分子编码器
         self.molecule_encoder = MoleculeEncoder()
         
@@ -344,8 +368,17 @@ class ReptileTransformer(nn.Module):
             nn.Dropout(DROPOUT)
         )
         
-        # 双向交叉注意力融合
-        self.cross_attention = BidirectionalCrossAttention()
+        # 融合模块：默认双向交叉注意力；concat 为去掉双向融合的对照
+        if fusion_mode == 'bidirectional':
+            self.cross_attention = BidirectionalCrossAttention()
+        else:
+            self.cross_attention = None
+            self.concat_fusion = nn.Sequential(
+                nn.Linear(HIDDEN_DIM * 2, HIDDEN_DIM),
+                nn.LayerNorm(HIDDEN_DIM),
+                nn.GELU(),
+                nn.Dropout(DROPOUT)
+            )
         
         # 预测头
         self.predictor = PredictionHead()
@@ -380,8 +413,12 @@ class ReptileTransformer(nn.Module):
         # 蛋白质特征投影
         protein_feat_proj = self.protein_proj(protein_feat)
         
-        # 交叉注意力融合
-        fused_feat, consistency_loss = self.cross_attention(mol_feat, protein_feat_proj)
+        # 融合：双向交叉注意力 或 concat 对照
+        if self.fusion_mode == 'bidirectional':
+            fused_feat, consistency_loss = self.cross_attention(mol_feat, protein_feat_proj)
+        else:
+            fused_feat = self.concat_fusion(torch.cat([mol_feat, protein_feat_proj], dim=-1))
+            consistency_loss = torch.zeros((), device=mol_feat.device)
         
         # 预测
         preds = self.predictor(fused_feat)
@@ -392,13 +429,12 @@ class ReptileTransformer(nn.Module):
         
         return preds.squeeze(-1), consistency_loss, contrastive_loss
     
-    def forward_with_sequence(self, morgan_fp, maccs_fp, descriptors, sequence):
+    def forward_with_sequence(self, morgan_fp, descriptors, sequence):
         """
         前向传播（在线计算蛋白质特征，用于验证）
         
         Args:
             morgan_fp: (batch, MORGAN_BITS)
-            maccs_fp: (batch, MACCS_DIM)
             descriptors: (batch, DESC_DIM)
             sequence: 蛋白质序列字符串
         """
@@ -408,13 +444,16 @@ class ReptileTransformer(nn.Module):
             protein_embedding = protein_embedding.unsqueeze(0)
         
         # 前向传播
-        return self.forward(morgan_fp, maccs_fp, descriptors, protein_embedding)
+        return self.forward(morgan_fp, descriptors, protein_embedding)
     
-    def get_embeddings(self, morgan_fp, maccs_fp, descriptors, protein_feat):
+    def get_embeddings(self, morgan_fp, descriptors, protein_feat):
         """获取中间特征表示"""
-        mol_feat = self.molecule_encoder(morgan_fp, maccs_fp, descriptors)
+        mol_feat = self.molecule_encoder(morgan_fp, descriptors)
         protein_feat_proj = self.protein_proj(protein_feat)
-        fused_feat, _ = self.cross_attention(mol_feat, protein_feat_proj)
+        if self.fusion_mode == 'bidirectional':
+            fused_feat, _ = self.cross_attention(mol_feat, protein_feat_proj)
+        else:
+            fused_feat = self.concat_fusion(torch.cat([mol_feat, protein_feat_proj], dim=-1))
         return mol_feat, protein_feat_proj, fused_feat
     
     def save(self, path):
